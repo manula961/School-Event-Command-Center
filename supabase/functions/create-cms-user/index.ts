@@ -14,13 +14,13 @@ const allowedRoles = [
 ];
 
 const allowedPermissionOverrides = [
-  "manageUsers",
   "manageEvents",
   "publishEvents",
   "manageAnnouncements",
   "manageRegistrations",
   "manageMedia",
   "manageLiveUpdates",
+  "manageSocieties",
   "approveEvents",
   "viewAnalytics",
   "viewLogs",
@@ -29,13 +29,9 @@ const allowedPermissionOverrides = [
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
-    return new Response(
-      "ok",
-      {
-        headers:
-          corsHeaders,
-      }
-    );
+    return new Response("ok", {
+      headers: corsHeaders,
+    });
   }
 
   try {
@@ -95,8 +91,7 @@ Deno.serve(async (req: Request) => {
 
     const {
       data: {
-        user:
-          caller,
+        user: caller,
       },
       error:
         callerError,
@@ -221,8 +216,7 @@ Deno.serve(async (req: Request) => {
     if (
       String(
         password
-      ).length <
-      8
+      ).length < 8
     ) {
       return response(
         {
@@ -267,10 +261,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const safePermissionOverrides:
-      Record<
-        string,
-        boolean
-      > = {};
+      Record<string, boolean> = {};
 
     if (
       permissionOverrides !==
@@ -325,8 +316,7 @@ Deno.serve(async (req: Request) => {
 
         safePermissionOverrides[
           permission
-        ] =
-          value;
+        ] = value;
       }
     }
 
@@ -338,7 +328,6 @@ Deno.serve(async (req: Request) => {
           auth: {
             autoRefreshToken:
               false,
-
             persistSession:
               false,
           },
@@ -442,8 +431,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const createdUser =
-      createdUserData
-        .user;
+      createdUserData.user;
 
     const profilePayload = {
       id:
@@ -588,8 +576,7 @@ Deno.serve(async (req: Request) => {
 
     return response(
       {
-        success:
-          true,
+        success: true,
 
         user: {
           id:
@@ -630,8 +617,7 @@ Deno.serve(async (req: Request) => {
     return response(
       {
         error:
-          error instanceof
-          Error
+          error instanceof Error
             ? error.message
             : "Unexpected server error.",
       },

@@ -15,13 +15,13 @@ const allowedRoles = [
 ];
 
 const allowedPermissionOverrides = [
-  "manageUsers",
   "manageEvents",
   "publishEvents",
   "manageAnnouncements",
   "manageRegistrations",
   "manageMedia",
   "manageLiveUpdates",
+  "manageSocieties",
   "approveEvents",
   "viewAnalytics",
   "viewLogs",
@@ -188,6 +188,11 @@ Deno.serve(async (req: Request) => {
         .trim()
         .toLowerCase();
 
+    const cleanRole =
+      String(
+        role
+      ).trim();
+
     const cleanTitle =
       typeof title ===
       "string"
@@ -209,7 +214,7 @@ Deno.serve(async (req: Request) => {
 
     if (
       !allowedRoles.includes(
-        role
+        cleanRole
       )
     ) {
       return response(
@@ -223,8 +228,9 @@ Deno.serve(async (req: Request) => {
 
     if (
       password &&
-      password.length <
-        8
+      String(
+        password
+      ).length < 8
     ) {
       return response(
         {
@@ -236,9 +242,9 @@ Deno.serve(async (req: Request) => {
     }
 
     const requiresSociety =
-      role ===
+      cleanRole ===
         "teacher" ||
-      role ===
+      cleanRole ===
         "student_admin";
 
     if (
@@ -255,10 +261,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const safePermissionOverrides:
-      Record<
-        string,
-        boolean
-      > = {};
+      Record<string, boolean> = {};
 
     if (
       permissionOverrides !==
@@ -325,7 +328,6 @@ Deno.serve(async (req: Request) => {
           auth: {
             autoRefreshToken:
               false,
-
             persistSession:
               false,
           },
@@ -372,7 +374,7 @@ Deno.serve(async (req: Request) => {
     if (
       targetProfile.role ===
         "principal" &&
-      role !==
+      cleanRole !==
         "principal"
     ) {
       return response(
@@ -387,7 +389,7 @@ Deno.serve(async (req: Request) => {
     if (
       targetProfile.role !==
         "principal" &&
-      role ===
+      cleanRole ===
         "principal"
     ) {
       return response(
@@ -432,7 +434,9 @@ Deno.serve(async (req: Request) => {
 
     if (password) {
       authUpdates.password =
-        password;
+        String(
+          password
+        );
     }
 
     const {
@@ -460,14 +464,14 @@ Deno.serve(async (req: Request) => {
     }
 
     const finalPermissionOverrides =
-      role ===
-      "principal"
+      cleanRole ===
+        "principal"
         ? {}
         : safePermissionOverrides;
 
     const finalIsActive =
       targetProfile.role ===
-      "principal"
+        "principal"
         ? true
         : typeof isActive ===
             "boolean"
@@ -493,7 +497,8 @@ Deno.serve(async (req: Request) => {
           email:
             cleanEmail,
 
-          role,
+          role:
+            cleanRole,
 
           title:
             cleanTitle ||
@@ -521,6 +526,7 @@ Deno.serve(async (req: Request) => {
       profileUpdateError
     ) {
       console.error(
+        "Could not update CMS profile:",
         profileUpdateError
       );
 
@@ -561,7 +567,8 @@ Deno.serve(async (req: Request) => {
             email:
               cleanEmail,
 
-            role,
+            role:
+              cleanRole,
 
             title:
               cleanTitle ||
@@ -599,7 +606,9 @@ Deno.serve(async (req: Request) => {
           },
         });
 
-    if (logError) {
+    if (
+      logError
+    ) {
       console.error(
         "Could not save activity log:",
         logError
@@ -608,8 +617,7 @@ Deno.serve(async (req: Request) => {
 
     return response(
       {
-        success:
-          true,
+        success: true,
 
         user: {
           id:
@@ -621,7 +629,8 @@ Deno.serve(async (req: Request) => {
           email:
             cleanEmail,
 
-          role,
+          role:
+            cleanRole,
 
           title:
             cleanTitle ||
@@ -639,15 +648,19 @@ Deno.serve(async (req: Request) => {
       },
       200
     );
-  } catch (error) {
+  } catch (
+    error
+  ) {
     console.error(
+      "update-cms-user error:",
       error
     );
 
     return response(
       {
         error:
-          error instanceof Error
+          error instanceof
+          Error
             ? error.message
             : "Unexpected server error.",
       },
@@ -669,7 +682,6 @@ function response(
 
       headers: {
         ...corsHeaders,
-
         "Content-Type":
           "application/json",
       },

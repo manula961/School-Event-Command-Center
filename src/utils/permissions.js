@@ -17,6 +17,7 @@ export const ROLE_LABELS = {
 export const permissions = {
   [ROLES.PRINCIPAL]: {
     manageUsers: true,
+    manageSocieties: true,
     manageEvents: true,
     publishEvents: true,
     manageAnnouncements: true,
@@ -31,6 +32,7 @@ export const permissions = {
 
   [ROLES.VICE_PRINCIPAL]: {
     manageUsers: false,
+    manageSocieties: true,
     manageEvents: true,
     publishEvents: true,
     manageAnnouncements: true,
@@ -45,6 +47,7 @@ export const permissions = {
 
   [ROLES.TEACHER]: {
     manageUsers: false,
+    manageSocieties: false,
     manageEvents: true,
     publishEvents: false,
     manageAnnouncements: false,
@@ -59,6 +62,7 @@ export const permissions = {
 
   [ROLES.STUDENT_ADMIN]: {
     manageUsers: false,
+    manageSocieties: false,
     manageEvents: true,
     publishEvents: false,
     manageAnnouncements: false,
@@ -73,6 +77,7 @@ export const permissions = {
 
   [ROLES.EVENT_STAFF]: {
     manageUsers: false,
+    manageSocieties: false,
     manageEvents: false,
     publishEvents: false,
     manageAnnouncements: false,

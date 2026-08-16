@@ -39,8 +39,8 @@ function AdminSidebar() {
       "manageRegistrations",
       "manageMedia",
       "manageLiveUpdates",
+      "manageSocieties",
       "viewAnalytics",
-      "manageUsers",
       "viewLogs",
       "checkInAttendees",
     ].some((permission) =>
@@ -131,14 +131,21 @@ function AdminSidebar() {
       ),
     },
     {
+      to: "/admin/societies",
+      label: "Societies",
+      icon: "◎",
+      visible: canUser(
+        role,
+        "manageSocieties",
+        overrides
+      ),
+    },
+    {
       to: "/admin/users",
       label: "Users & Roles",
       icon: "♙",
-      visible: canUser(
-        role,
-        "manageUsers",
-        overrides
-      ),
+      visible:
+        role === "principal",
     },
     {
       to: "/admin/logs",

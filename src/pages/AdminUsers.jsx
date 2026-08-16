@@ -1,4 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import { supabase } from "../services/supabase";
 import { logActivity } from "../utils/activityLogger";
@@ -33,52 +37,93 @@ const PERMISSION_LABELS = {
   manageRegistrations: "Manage registrations",
   manageMedia: "Manage media",
   manageLiveUpdates: "Manage live updates",
+  manageSocieties: "Manage societies",
   viewAnalytics: "View analytics",
   checkInAttendees: "Event check-in",
-  manageUsers: "Manage users & roles",
   viewLogs: "View activity logs",
 };
 
 function AdminUsers() {
-  const [users, setUsers] = useState([]);
-  const [societies, setSocieties] = useState([]);
+  const [
+    users,
+    setUsers,
+  ] = useState([]);
 
-  const [formData, setFormData] = useState(emptyForm);
+  const [
+    societies,
+    setSocieties,
+  ] = useState([]);
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [
+    formData,
+    setFormData,
+  ] = useState({
+    ...emptyForm,
+  });
 
-  const [showCreatePanel, setShowCreatePanel] = useState(false);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const [editingUser, setEditingUser] = useState(null);
-  const [editUserForm, setEditUserForm] = useState(emptyForm);
-  const [userUpdating, setUserUpdating] = useState(false);
-  const [deletingUserId, setDeletingUserId] = useState(null);
+  const [
+    saving,
+    setSaving,
+  ] = useState(false);
 
-  const [showSocietyPanel, setShowSocietyPanel] = useState(false);
+  const [
+    showCreatePanel,
+    setShowCreatePanel,
+  ] = useState(false);
 
-  const [societyName, setSocietyName] = useState("");
-  const [societyCode, setSocietyCode] = useState("");
-  const [societyDescription, setSocietyDescription] = useState("");
-  const [societySaving, setSocietySaving] = useState(false);
+  const [
+    editingUser,
+    setEditingUser,
+  ] = useState(null);
 
-  const [editingSociety, setEditingSociety] = useState(null);
-  const [editSocietyName, setEditSocietyName] = useState("");
-  const [editSocietyCode, setEditSocietyCode] = useState("");
-  const [editSocietyDescription, setEditSocietyDescription] = useState("");
-  const [societyUpdating, setSocietyUpdating] = useState(false);
-  const [deletingSocietyId, setDeletingSocietyId] = useState(null);
+  const [
+    editUserForm,
+    setEditUserForm,
+  ] = useState({
+    ...emptyForm,
+  });
 
-  const [assigningTeacherId, setAssigningTeacherId] = useState(null);
+  const [
+    userUpdating,
+    setUserUpdating,
+  ] = useState(false);
 
-  const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
+  const [
+    deletingUserId,
+    setDeletingUserId,
+  ] = useState(null);
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [
+    search,
+    setSearch,
+  ] = useState("");
+
+  const [
+    roleFilter,
+    setRoleFilter,
+  ] = useState("all");
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+  const [
+    success,
+    setSuccess,
+  ] = useState("");
 
   async function fetchUsers() {
-    const { data, error } = await supabase
+    const {
+      data,
+      error:
+        fetchError,
+    } = await supabase
       .from("profiles")
       .select(`
         id,
@@ -96,42 +141,74 @@ function AdminUsers() {
           code
         )
       `)
-      .order("created_at", {
-        ascending: false,
-      });
+      .order(
+        "created_at",
+        {
+          ascending: false,
+        }
+      );
 
-    if (error) {
-      console.error(error);
-      setError("Could not load CMS users.");
+    if (
+      fetchError
+    ) {
+      console.error(
+        "Could not load CMS users:",
+        fetchError
+      );
+
+      setError(
+        "Could not load CMS users."
+      );
+
       setUsers([]);
+
       return;
     }
 
-    setUsers(data || []);
+    setUsers(
+      data || []
+    );
   }
 
   async function fetchSocieties() {
-    const { data, error } = await supabase
+    const {
+      data,
+      error:
+        fetchError,
+    } = await supabase
       .from("societies")
       .select(`
         id,
         name,
-        code,
-        description,
-        created_at
+        code
       `)
-      .order("name", {
-        ascending: true,
-      });
+      .order(
+        "name",
+        {
+          ascending: true,
+        }
+      );
 
-    if (error) {
-      console.error(error);
-      setError("Could not load societies.");
+    if (
+      fetchError
+    ) {
+      console.error(
+        "Could not load societies:",
+        fetchError
+      );
+
+      setError(
+        "Could not load societies."
+      );
+
       setSocieties([]);
+
       return;
     }
 
-    setSocieties(data || []);
+    setSocieties(
+      data || []
+    );
   }
 
   async function loadPage() {
@@ -150,42 +227,92 @@ function AdminUsers() {
     loadPage();
   }, []);
 
-  function handleChange(event) {
-    const { name, value } = event.target;
+  function handleChange(
+    event
+  ) {
+    const {
+      name,
+      value,
+    } = event.target;
 
-    setFormData((current) => ({
-      ...current,
-      [name]: value,
-      ...(name === "role" &&
-      (
-        value === "vice_principal" ||
-        value === "principal" ||
-        value === "event_staff"
-      )
-        ? {
-            societyId: "",
-          }
-        : {}),
-    }));
+    setFormData(
+      (current) => ({
+        ...current,
+        [name]:
+          value,
+        ...(name ===
+          "role" &&
+        (
+          value ===
+            "vice_principal" ||
+          value ===
+            "principal" ||
+          value ===
+            "event_staff"
+        )
+          ? {
+              societyId:
+                "",
+            }
+          : {}),
+      })
+    );
+
+    if (
+      error
+    ) {
+      setError("");
+    }
+
+    if (
+      success
+    ) {
+      setSuccess("");
+    }
   }
 
-  function handleEditUserChange(event) {
-    const { name, value } = event.target;
+  function handleEditUserChange(
+    event
+  ) {
+    const {
+      name,
+      value,
+    } = event.target;
 
-    setEditUserForm((current) => ({
-      ...current,
-      [name]: value,
-      ...(name === "role" &&
-      (
-        value === "vice_principal" ||
-        value === "principal" ||
-        value === "event_staff"
-      )
-        ? {
-            societyId: "",
-          }
-        : {}),
-    }));
+    setEditUserForm(
+      (current) => ({
+        ...current,
+        [name]:
+          value,
+        ...(name ===
+          "role" &&
+        (
+          value ===
+            "vice_principal" ||
+          value ===
+            "principal" ||
+          value ===
+            "event_staff"
+        )
+          ? {
+              societyId:
+                "",
+            }
+          : {}),
+      })
+    );
+
+    if (
+      error
+    ) {
+      setError("");
+    }
+
+    if (
+      success
+    ) {
+      setSuccess("");
+    }
   }
 
   function updatePermissionOverride(
@@ -193,65 +320,114 @@ function AdminUsers() {
     permission,
     value
   ) {
-    setter((current) => {
-      const nextOverrides = {
-        ...(current.permissionOverrides || {}),
-      };
+    setter(
+      (current) => {
+        const nextOverrides = {
+          ...(current.permissionOverrides ||
+            {}),
+        };
 
-      if (value === "default") {
-        delete nextOverrides[permission];
-      } else {
-        nextOverrides[permission] =
-          value === "allow";
+        if (
+          value ===
+          "default"
+        ) {
+          delete nextOverrides[
+            permission
+          ];
+        } else {
+          nextOverrides[
+            permission
+          ] =
+            value ===
+            "allow";
+        }
+
+        return {
+          ...current,
+          permissionOverrides:
+            nextOverrides,
+        };
       }
-
-      return {
-        ...current,
-        permissionOverrides: nextOverrides,
-      };
-    });
+    );
   }
 
   function resetPermissionOverrides(
     setter
   ) {
-    setter((current) => ({
-      ...current,
-      permissionOverrides: {},
-    }));
+    setter(
+      (current) => ({
+        ...current,
+        permissionOverrides:
+          {},
+      })
+    );
   }
 
   function openCreatePanel() {
     setError("");
     setSuccess("");
+
     setFormData({
       ...emptyForm,
-      permissionOverrides: {},
+      permissionOverrides:
+        {},
     });
-    setShowCreatePanel(true);
+
+    setShowCreatePanel(
+      true
+    );
   }
 
   function closeCreatePanel() {
-    if (saving) return;
+    if (
+      saving
+    ) {
+      return;
+    }
 
-    setShowCreatePanel(false);
+    setShowCreatePanel(
+      false
+    );
+
     setFormData({
       ...emptyForm,
-      permissionOverrides: {},
+      permissionOverrides:
+        {},
     });
+
     setError("");
   }
 
-  async function handleSubmit(event) {
+  async function handleSubmit(
+    event
+  ) {
     event.preventDefault();
 
-    setSaving(true);
-    setError("");
-    setSuccess("");
+    const fullName =
+      formData.fullName
+        .trim();
+
+    const email =
+      formData.email
+        .trim()
+        .toLowerCase();
 
     const requiresSociety =
-      formData.role === "teacher" ||
-      formData.role === "student_admin";
+      formData.role ===
+        "teacher" ||
+      formData.role ===
+        "student_admin";
+
+    if (
+      !fullName ||
+      !email
+    ) {
+      setError(
+        "Name and email are required."
+      );
+
+      return;
+    }
 
     if (
       requiresSociety &&
@@ -260,123 +436,136 @@ function AdminUsers() {
       setError(
         "Select a society for this account."
       );
-      setSaving(false);
+
       return;
     }
 
     if (
-      formData.password.length <
+      formData.password
+        .length <
       8
     ) {
       setError(
         "Temporary password must contain at least 8 characters."
       );
-      setSaving(false);
+
       return;
     }
 
+    setSaving(true);
+    setError("");
+    setSuccess("");
+
     const {
       data,
-      error,
-    } = await supabase.functions.invoke(
-      "create-cms-user",
-      {
-        body: {
-          fullName:
-            formData.fullName.trim(),
+      error:
+        createError,
+    } =
+      await supabase
+        .functions
+        .invoke(
+          "create-cms-user",
+          {
+            body: {
+              fullName,
+              email,
+              password:
+                formData.password,
+              role:
+                formData.role,
+              title:
+                formData.title
+                  .trim() ||
+                null,
+              permissionOverrides:
+                formData
+                  .permissionOverrides ||
+                {},
+              societyId:
+                requiresSociety
+                  ? formData
+                      .societyId
+                  : null,
+            },
+          }
+        );
 
-          email:
-            formData.email
-              .trim()
-              .toLowerCase(),
-
-          password:
-            formData.password,
-
-          role:
-            formData.role,
-
-          title:
-            formData.title.trim() ||
-            null,
-
-          permissionOverrides:
-            formData.permissionOverrides ||
-            {},
-
-          societyId:
-            requiresSociety
-              ? formData.societyId
-              : null,
-        },
-      }
-    );
-
-    if (error) {
-      console.error(error);
+    if (
+      createError
+    ) {
+      console.error(
+        "Could not create CMS user:",
+        createError
+      );
 
       setError(
-        error.message ||
+        createError.message ||
           "Could not create CMS account."
       );
 
       setSaving(false);
+
       return;
     }
 
-    if (data?.error) {
-      setError(data.error);
+    if (
+      data?.error
+    ) {
+      setError(
+        data.error
+      );
+
       setSaving(false);
+
       return;
     }
-
-    const name =
-      formData.fullName.trim();
 
     setSuccess(
-      `${name} was added to EventHub.`
+      `${fullName} was added to EventHub.`
     );
 
     setFormData({
       ...emptyForm,
-      permissionOverrides: {},
+      permissionOverrides:
+        {},
     });
 
-    setShowCreatePanel(false);
+    setShowCreatePanel(
+      false
+    );
+
     setSaving(false);
 
     await fetchUsers();
   }
 
-  function openEditUser(user) {
+  function openEditUser(
+    user
+  ) {
     setError("");
     setSuccess("");
 
-    setEditingUser(user);
+    setEditingUser(
+      user
+    );
 
     setEditUserForm({
       fullName:
         user.full_name ||
         "",
-
       email:
         user.email ||
         "",
-
       password:
         "",
-
       role:
         user.role,
-
       societyId:
         user.society_id ||
         "",
-
       title:
         user.title ||
         "",
-
       permissionOverrides:
         user.permission_overrides ||
         {},
@@ -384,129 +573,193 @@ function AdminUsers() {
   }
 
   function closeEditUser() {
-    if (userUpdating) return;
+    if (
+      userUpdating
+    ) {
+      return;
+    }
 
-    setEditingUser(null);
+    setEditingUser(
+      null
+    );
 
     setEditUserForm({
       ...emptyForm,
-      permissionOverrides: {},
+      permissionOverrides:
+        {},
     });
   }
 
-  async function handleUpdateUser(event) {
+  async function handleUpdateUser(
+    event
+  ) {
     event.preventDefault();
 
-    if (!editingUser) return;
+    if (
+      !editingUser
+    ) {
+      return;
+    }
+
+    const fullName =
+      editUserForm
+        .fullName
+        .trim();
+
+    const email =
+      editUserForm
+        .email
+        .trim()
+        .toLowerCase();
 
     const requiresSociety =
-      editUserForm.role === "teacher" ||
-      editUserForm.role === "student_admin";
+      editUserForm.role ===
+        "teacher" ||
+      editUserForm.role ===
+        "student_admin";
+
+    if (
+      !fullName ||
+      !email
+    ) {
+      setError(
+        "Name and email are required."
+      );
+
+      return;
+    }
 
     if (
       requiresSociety &&
-      !editUserForm.societyId
+      !editUserForm
+        .societyId
     ) {
       setError(
         "Select a society for this account."
       );
+
       return;
     }
 
     if (
       editUserForm.password &&
-      editUserForm.password.length <
+      editUserForm
+        .password
+        .length <
         8
     ) {
       setError(
         "New password must contain at least 8 characters."
       );
+
       return;
     }
 
-    setUserUpdating(true);
+    setUserUpdating(
+      true
+    );
+
     setError("");
     setSuccess("");
 
     const {
       data,
-      error,
-    } = await supabase.functions.invoke(
-      "update-cms-user",
-      {
-        body: {
-          userId:
-            editingUser.id,
+      error:
+        updateError,
+    } =
+      await supabase
+        .functions
+        .invoke(
+          "update-cms-user",
+          {
+            body: {
+              userId:
+                editingUser.id,
+              fullName,
+              email,
+              password:
+                editUserForm.password ||
+                null,
+              role:
+                editUserForm.role,
+              title:
+                editUserForm.title
+                  .trim() ||
+                null,
+              permissionOverrides:
+                editUserForm
+                  .permissionOverrides ||
+                {},
+              societyId:
+                requiresSociety
+                  ? editUserForm
+                      .societyId
+                  : null,
+              isActive:
+                editingUser
+                  .is_active,
+            },
+          }
+        );
 
-          fullName:
-            editUserForm.fullName.trim(),
-
-          email:
-            editUserForm.email
-              .trim()
-              .toLowerCase(),
-
-          password:
-            editUserForm.password ||
-            null,
-
-          role:
-            editUserForm.role,
-
-          title:
-            editUserForm.title.trim() ||
-            null,
-
-          permissionOverrides:
-            editUserForm.permissionOverrides ||
-            {},
-
-          societyId:
-            requiresSociety
-              ? editUserForm.societyId
-              : null,
-
-          isActive:
-            editingUser.is_active,
-        },
-      }
-    );
-
-    if (error) {
-      console.error(error);
+    if (
+      updateError
+    ) {
+      console.error(
+        "Could not update CMS user:",
+        updateError
+      );
 
       setError(
-        error.message ||
+        updateError.message ||
           "Could not update CMS user."
       );
 
-      setUserUpdating(false);
+      setUserUpdating(
+        false
+      );
+
       return;
     }
 
-    if (data?.error) {
-      setError(data.error);
-      setUserUpdating(false);
+    if (
+      data?.error
+    ) {
+      setError(
+        data.error
+      );
+
+      setUserUpdating(
+        false
+      );
+
       return;
     }
 
     setSuccess(
-      `${editUserForm.fullName.trim()} was updated successfully.`
+      `${fullName} was updated successfully.`
     );
 
-    setEditingUser(null);
+    setEditingUser(
+      null
+    );
 
     setEditUserForm({
       ...emptyForm,
-      permissionOverrides: {},
+      permissionOverrides:
+        {},
     });
 
-    setUserUpdating(false);
+    setUserUpdating(
+      false
+    );
 
     await fetchUsers();
   }
 
-  async function deleteUser(user) {
+  async function deleteUser(
+    user
+  ) {
     setError("");
     setSuccess("");
 
@@ -517,6 +770,7 @@ function AdminUsers() {
       setError(
         "The Principal account cannot be deleted."
       );
+
       return;
     }
 
@@ -531,7 +785,11 @@ function AdminUsers() {
 This will remove the CMS account and cannot be undone.`
       );
 
-    if (!confirmed) return;
+    if (
+      !confirmed
+    ) {
+      return;
+    }
 
     setDeletingUserId(
       user.id
@@ -539,35 +797,52 @@ This will remove the CMS account and cannot be undone.`
 
     const {
       data,
-      error,
-    } = await supabase.functions.invoke(
-      "delete-cms-user",
-      {
-        body: {
-          userId:
-            user.id,
-        },
-      }
-    );
+      error:
+        deleteError,
+    } =
+      await supabase
+        .functions
+        .invoke(
+          "delete-cms-user",
+          {
+            body: {
+              userId:
+                user.id,
+            },
+          }
+        );
 
-    if (error) {
+    if (
+      deleteError
+    ) {
       console.error(
         "Delete user error:",
-        error
+        deleteError
       );
 
       setError(
-        error.message ||
+        deleteError.message ||
           "Could not delete CMS user."
       );
 
-      setDeletingUserId(null);
+      setDeletingUserId(
+        null
+      );
+
       return;
     }
 
-    if (data?.error) {
-      setError(data.error);
-      setDeletingUserId(null);
+    if (
+      data?.error
+    ) {
+      setError(
+        data.error
+      );
+
+      setDeletingUserId(
+        null
+      );
+
       return;
     }
 
@@ -584,439 +859,22 @@ This will remove the CMS account and cannot be undone.`
       editingUser?.id ===
       user.id
     ) {
-      setEditingUser(null);
+      setEditingUser(
+        null
+      );
 
       setEditUserForm({
         ...emptyForm,
-        permissionOverrides: {},
+        permissionOverrides:
+          {},
       });
     }
 
-    setDeletingUserId(null);
+    setDeletingUserId(
+      null
+    );
 
     await fetchUsers();
-  }
-
-  function openSocietyPanel() {
-    setError("");
-    setSuccess("");
-
-    setSocietyName("");
-    setSocietyCode("");
-    setSocietyDescription("");
-
-    setShowSocietyPanel(true);
-  }
-
-  function closeSocietyPanel() {
-    if (societySaving) return;
-
-    setShowSocietyPanel(false);
-
-    setSocietyName("");
-    setSocietyCode("");
-    setSocietyDescription("");
-  }
-
-  async function handleCreateSociety(event) {
-    event.preventDefault();
-
-    const name =
-      societyName.trim();
-
-    const code =
-      societyCode
-        .trim()
-        .toUpperCase();
-
-    if (
-      !name ||
-      !code
-    ) {
-      setError(
-        "Society name and code are required."
-      );
-      return;
-    }
-
-    if (
-      !/^[A-Z0-9]{2,6}$/.test(
-        code
-      )
-    ) {
-      setError(
-        "Society code must contain 2–6 letters or numbers."
-      );
-      return;
-    }
-
-    setSocietySaving(true);
-    setError("");
-    setSuccess("");
-
-    const {
-      data,
-      error,
-    } = await supabase
-      .from("societies")
-      .insert({
-        name,
-        code,
-
-        description:
-          societyDescription.trim() ||
-          null,
-      })
-      .select("id, name, code")
-      .single();
-
-    if (error) {
-      console.error(error);
-
-      if (
-        error.code ===
-        "23505"
-      ) {
-        setError(
-          `The society code "${code}" is already being used.`
-        );
-      } else {
-        setError(
-          "Could not create society."
-        );
-      }
-
-      setSocietySaving(false);
-      return;
-    }
-
-    await logActivity({
-      action:
-        "created_society",
-
-      entityType:
-        "society",
-
-      entityId:
-        data?.id ||
-        null,
-
-      details: {
-        name,
-        code,
-      },
-    });
-
-    setSuccess(
-      `${name} (${code}) was created successfully.`
-    );
-
-    setShowSocietyPanel(false);
-    setSocietySaving(false);
-
-    setSocietyName("");
-    setSocietyCode("");
-    setSocietyDescription("");
-
-    await fetchSocieties();
-  }
-
-  function openEditSociety(
-    society
-  ) {
-    setError("");
-    setSuccess("");
-
-    setEditingSociety(
-      society
-    );
-
-    setEditSocietyName(
-      society.name ||
-      ""
-    );
-
-    setEditSocietyCode(
-      society.code ||
-      ""
-    );
-
-    setEditSocietyDescription(
-      society.description ||
-      ""
-    );
-  }
-
-  function closeEditSociety() {
-    if (societyUpdating) return;
-
-    setEditingSociety(null);
-  }
-
-  async function handleUpdateSociety(
-    event
-  ) {
-    event.preventDefault();
-
-    if (!editingSociety) return;
-
-    const name =
-      editSocietyName.trim();
-
-    const code =
-      editSocietyCode
-        .trim()
-        .toUpperCase();
-
-    if (
-      !name ||
-      !code
-    ) {
-      setError(
-        "Society name and code are required."
-      );
-      return;
-    }
-
-    if (
-      !/^[A-Z0-9]{2,6}$/.test(
-        code
-      )
-    ) {
-      setError(
-        "Society code must contain 2–6 letters or numbers."
-      );
-      return;
-    }
-
-    setSocietyUpdating(true);
-    setError("");
-    setSuccess("");
-
-    const {
-      error,
-    } = await supabase
-      .from("societies")
-      .update({
-        name,
-        code,
-
-        description:
-          editSocietyDescription.trim() ||
-          null,
-      })
-      .eq(
-        "id",
-        editingSociety.id
-      );
-
-    if (error) {
-      console.error(error);
-
-      if (
-        error.code ===
-        "23505"
-      ) {
-        setError(
-          `The society code "${code}" is already in use.`
-        );
-      } else {
-        setError(
-          "Could not update society."
-        );
-      }
-
-      setSocietyUpdating(false);
-      return;
-    }
-
-    await logActivity({
-      action:
-        "updated_society",
-
-      entityType:
-        "society",
-
-      entityId:
-        editingSociety.id,
-
-      details: {
-        old_name:
-          editingSociety.name,
-
-        old_code:
-          editingSociety.code,
-
-        name,
-        code,
-      },
-    });
-
-    setSuccess(
-      `${name} (${code}) was updated successfully.`
-    );
-
-    setEditingSociety(null);
-    setSocietyUpdating(false);
-
-    await Promise.all([
-      fetchSocieties(),
-      fetchUsers(),
-    ]);
-  }
-
-  async function deleteSociety(
-    society
-  ) {
-    setError("");
-    setSuccess("");
-
-    const assignedUsers =
-      users.filter(
-        (user) =>
-          user.society_id ===
-          society.id
-      );
-
-    if (
-      assignedUsers.length >
-      0
-    ) {
-      setError(
-        `Cannot delete ${society.name}. ` +
-          `${assignedUsers.length} CMS user${
-            assignedUsers.length === 1
-              ? " is"
-              : "s are"
-          } still assigned to this society.`
-      );
-
-      return;
-    }
-
-    const confirmed =
-      window.confirm(
-        `Permanently delete ${society.name} (${society.code})?
-
-This action cannot be undone.`
-      );
-
-    if (!confirmed) return;
-
-    setDeletingSocietyId(
-      society.id
-    );
-
-    const {
-      count:
-        eventCount,
-      error:
-        eventCheckError,
-    } = await supabase
-      .from("events")
-      .select(
-        "id",
-        {
-          count: "exact",
-          head: true,
-        }
-      )
-      .eq(
-        "society_id",
-        society.id
-      );
-
-    if (eventCheckError) {
-      console.error(
-        eventCheckError
-      );
-
-      setError(
-        "Could not check society dependencies."
-      );
-
-      setDeletingSocietyId(null);
-      return;
-    }
-
-    if (
-      (eventCount || 0) >
-      0
-    ) {
-      setError(
-        `Cannot delete ${society.name}. ` +
-          `${eventCount} event${
-            eventCount === 1
-              ? ""
-              : "s"
-          } still reference this society.`
-      );
-
-      setDeletingSocietyId(null);
-      return;
-    }
-
-    const {
-      error,
-    } = await supabase
-      .from("societies")
-      .delete()
-      .eq(
-        "id",
-        society.id
-      );
-
-    if (error) {
-      console.error(error);
-
-      setError(
-        "Could not delete society. It may still be referenced by other records."
-      );
-
-      setDeletingSocietyId(null);
-      return;
-    }
-
-    await logActivity({
-      action:
-        "deleted_society",
-
-      entityType:
-        "society",
-
-      entityId:
-        society.id,
-
-      details: {
-        name:
-          society.name,
-
-        code:
-          society.code,
-
-        description:
-          society.description ||
-          null,
-      },
-    });
-
-    if (
-      editingSociety?.id ===
-      society.id
-    ) {
-      setEditingSociety(null);
-    }
-
-    setSuccess(
-      `${society.name} (${society.code}) was deleted successfully.`
-    );
-
-    setDeletingSocietyId(null);
-
-    await Promise.all([
-      fetchSocieties(),
-      fetchUsers(),
-    ]);
   }
 
   async function toggleUserStatus(
@@ -1032,17 +890,18 @@ This action cannot be undone.`
       setError(
         "The Principal account cannot be disabled."
       );
+
       return;
     }
 
     const {
-      error,
+      error:
+        statusError,
     } = await supabase
       .from("profiles")
       .update({
         is_active:
           !user.is_active,
-
         updated_at:
           new Date()
             .toISOString(),
@@ -1052,12 +911,18 @@ This action cannot be undone.`
         user.id
       );
 
-    if (error) {
-      console.error(error);
+    if (
+      statusError
+    ) {
+      console.error(
+        "Could not update account status:",
+        statusError
+      );
 
       setError(
         "Could not update account status."
       );
+
       return;
     }
 
@@ -1066,20 +931,15 @@ This action cannot be undone.`
         user.is_active
           ? "disabled_user"
           : "activated_user",
-
       entityType:
         "user",
-
       entityId:
         user.id,
-
       details: {
         full_name:
           user.full_name,
-
         email:
           user.email,
-
         role:
           user.role,
       },
@@ -1100,118 +960,6 @@ This action cannot be undone.`
     await fetchUsers();
   }
 
-  function getTeachers() {
-    return users.filter(
-      (user) =>
-        user.role ===
-          "teacher" &&
-        user.is_active
-    );
-  }
-
-  async function assignTeacherToSociety(
-    teacherId,
-    societyId
-  ) {
-    if (!teacherId) return;
-
-    const teacher =
-      users.find(
-        (user) =>
-          user.id ===
-          teacherId
-      );
-
-    const society =
-      societies.find(
-        (item) =>
-          item.id ===
-          societyId
-      );
-
-    if (
-      !teacher ||
-      !society
-    ) {
-      return;
-    }
-
-    setAssigningTeacherId(
-      teacherId
-    );
-
-    setError("");
-    setSuccess("");
-
-    const {
-      error,
-    } = await supabase
-      .from("profiles")
-      .update({
-        society_id:
-          societyId,
-
-        updated_at:
-          new Date()
-            .toISOString(),
-      })
-      .eq(
-        "id",
-        teacherId
-      )
-      .eq(
-        "role",
-        "teacher"
-      );
-
-    if (error) {
-      console.error(error);
-
-      setError(
-        "Could not assign Teacher-in-Charge."
-      );
-
-      setAssigningTeacherId(null);
-      return;
-    }
-
-    await logActivity({
-      action:
-        "assigned_teacher",
-
-      entityType:
-        "society",
-
-      entityId:
-        societyId,
-
-      details: {
-        teacher_id:
-          teacher.id,
-
-        teacher_name:
-          teacher.full_name,
-
-        society_name:
-          society.name,
-
-        society_code:
-          society.code,
-      },
-    });
-
-    setSuccess(
-      `${
-        teacher.full_name ||
-        "Teacher"
-      } was assigned to ${society.name}.`
-    );
-
-    setAssigningTeacherId(null);
-
-    await fetchUsers();
-  }
-
   const filteredUsers =
     useMemo(() => {
       const query =
@@ -1225,11 +973,17 @@ This action cannot be undone.`
             user.full_name,
             user.email,
             user.title,
-            ROLE_LABELS[user.role],
-            user.societies?.name,
-            user.societies?.code,
+            ROLE_LABELS[
+              user.role
+            ],
+            user.societies
+              ?.name,
+            user.societies
+              ?.code,
           ]
-            .filter(Boolean)
+            .filter(
+              Boolean
+            )
             .join(" ")
             .toLowerCase();
 
@@ -1297,23 +1051,13 @@ This action cannot be undone.`
           </h1>
 
           <p>
-            Manage CMS users, societies,
+            Manage CMS accounts, roles,
             titles and individual task
             permissions.
           </p>
         </div>
 
         <div className="admin-page-heading-actions">
-          <button
-            type="button"
-            className="btn btn-outline"
-            onClick={
-              openSocietyPanel
-            }
-          >
-            + Create Society
-          </button>
-
           <button
             type="button"
             className="btn btn-primary"
@@ -1387,7 +1131,9 @@ This action cannot be undone.`
           </span>
 
           <strong>
-            {studentAdminCount}
+            {
+              studentAdminCount
+            }
           </strong>
         </div>
 
@@ -1400,147 +1146,6 @@ This action cannot be undone.`
             {eventStaffCount}
           </strong>
         </div>
-      </section>
-
-      <section className="admin-society-management">
-        <div className="admin-society-management-header">
-          <span className="admin-eyebrow">
-            Society Administration
-          </span>
-
-          <h2>
-            Teacher-in-Charge Assignments
-          </h2>
-        </div>
-
-        {societies.map(
-          (society) => {
-            const teacher =
-              users.find(
-                (user) =>
-                  user.role ===
-                    "teacher" &&
-                  user.society_id ===
-                    society.id
-              );
-
-            const deleting =
-              deletingSocietyId ===
-              society.id;
-
-            return (
-              <article
-                key={
-                  society.id
-                }
-                className="admin-society-row"
-              >
-                <div className="admin-society-info">
-                  <span className="admin-society-mark">
-                    {
-                      society.code
-                    }
-                  </span>
-
-                  <div>
-                    <h3>
-                      {
-                        society.name
-                      }
-
-                      <span className="admin-society-code">
-                        {
-                          society.code
-                        }
-                      </span>
-                    </h3>
-
-                    <p>
-                      {teacher
-                        ? `Teacher-in-Charge: ${teacher.full_name}`
-                        : "No Teacher-in-Charge assigned"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="admin-society-assignment admin-society-actions">
-                  <select
-                    value={
-                      teacher?.id ||
-                      ""
-                    }
-                    disabled={
-                      assigningTeacherId !==
-                        null ||
-                      deleting
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      assignTeacherToSociety(
-                        event.target
-                          .value,
-                        society.id
-                      )
-                    }
-                  >
-                    <option value="">
-                      Select Teacher
-                    </option>
-
-                    {getTeachers().map(
-                      (item) => (
-                        <option
-                          key={
-                            item.id
-                          }
-                          value={
-                            item.id
-                          }
-                        >
-                          {item.full_name ||
-                            item.email}
-                        </option>
-                      )
-                    )}
-                  </select>
-
-                  <button
-                    type="button"
-                    className="admin-action-button"
-                    disabled={
-                      deleting
-                    }
-                    onClick={() =>
-                      openEditSociety(
-                        society
-                      )
-                    }
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    type="button"
-                    className="admin-action-button danger"
-                    disabled={
-                      deleting
-                    }
-                    onClick={() =>
-                      deleteSociety(
-                        society
-                      )
-                    }
-                  >
-                    {deleting
-                      ? "Deleting..."
-                      : "Delete"}
-                  </button>
-                </div>
-              </article>
-            );
-          }
-        )}
       </section>
 
       <section className="admin-users-panel">
@@ -1913,76 +1518,6 @@ This action cannot be undone.`
           </section>
         </div>
       )}
-
-      {showSocietyPanel && (
-        <SocietyModal
-          title="Create Society"
-          eyebrow="School organization"
-          name={
-            societyName
-          }
-          code={
-            societyCode
-          }
-          description={
-            societyDescription
-          }
-          setName={
-            setSocietyName
-          }
-          setCode={
-            setSocietyCode
-          }
-          setDescription={
-            setSocietyDescription
-          }
-          saving={
-            societySaving
-          }
-          onSubmit={
-            handleCreateSociety
-          }
-          onClose={
-            closeSocietyPanel
-          }
-          saveText="Create Society"
-        />
-      )}
-
-      {editingSociety && (
-        <SocietyModal
-          title="Edit Society"
-          eyebrow="Society administration"
-          name={
-            editSocietyName
-          }
-          code={
-            editSocietyCode
-          }
-          description={
-            editSocietyDescription
-          }
-          setName={
-            setEditSocietyName
-          }
-          setCode={
-            setEditSocietyCode
-          }
-          setDescription={
-            setEditSocietyDescription
-          }
-          saving={
-            societyUpdating
-          }
-          onSubmit={
-            handleUpdateSociety
-          }
-          onClose={
-            closeEditSociety
-          }
-          saveText="Save changes"
-        />
-      )}
     </AdminLayout>
   );
 }
@@ -1996,8 +1531,10 @@ function UserFields({
   onPermissionReset,
 }) {
   const requiresSociety =
-    data.role === "teacher" ||
-    data.role === "student_admin";
+    data.role ===
+      "teacher" ||
+    data.role ===
+      "student_admin";
 
   return (
     <>
@@ -2324,129 +1861,6 @@ function PermissionEditor({
   );
 }
 
-function SocietyModal({
-  title,
-  eyebrow,
-  name,
-  code,
-  description,
-  setName,
-  setCode,
-  setDescription,
-  saving,
-  onSubmit,
-  onClose,
-  saveText,
-}) {
-  return (
-    <div className="admin-user-modal-backdrop">
-      <section className="admin-user-modal">
-        <ModalHeader
-          eyebrow={
-            eyebrow
-          }
-          title={
-            title
-          }
-          onClose={
-            onClose
-          }
-          disabled={
-            saving
-          }
-        />
-
-        <form
-          className="admin-event-form"
-          onSubmit={
-            onSubmit
-          }
-        >
-          <div className="admin-field">
-            <label>
-              Society name
-            </label>
-
-            <input
-              value={
-                name
-              }
-              onChange={(
-                event
-              ) =>
-                setName(
-                  event.target
-                    .value
-                )
-              }
-              required
-            />
-          </div>
-
-          <div className="admin-field">
-            <label>
-              Society code
-            </label>
-
-            <input
-              value={
-                code
-              }
-              onChange={(
-                event
-              ) =>
-                setCode(
-                  cleanSocietyCode(
-                    event.target
-                      .value
-                  )
-                )
-              }
-              minLength="2"
-              maxLength="6"
-              required
-            />
-          </div>
-
-          <div className="admin-field">
-            <label>
-              Description
-            </label>
-
-            <textarea
-              rows="4"
-              value={
-                description
-              }
-              onChange={(
-                event
-              ) =>
-                setDescription(
-                  event.target
-                    .value
-                )
-              }
-            />
-          </div>
-
-          <ModalActions
-            saving={
-              saving
-            }
-            saveText={
-              saveText
-            }
-            savingText="Saving..."
-            onCancel={
-              onClose
-            }
-          />
-        </form>
-      </section>
-    </div>
-  );
-}
-
 function ModalHeader({
   eyebrow,
   title,
@@ -2526,25 +1940,12 @@ function ModalActions({
   );
 }
 
-function cleanSocietyCode(
-  value
-) {
-  return value
-    .toUpperCase()
-    .replace(
-      /[^A-Z0-9]/g,
-      ""
-    )
-    .slice(
-      0,
-      6
-    );
-}
-
 function getInitials(
   name
 ) {
-  if (!name) {
+  if (
+    !name
+  ) {
     return "?";
   }
 

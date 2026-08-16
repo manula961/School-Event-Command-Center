@@ -35,6 +35,7 @@ import AdminUsers from "./pages/AdminUsers";
 import AdminCheckIn from "./pages/AdminCheckIn";
 import AdminLogs from "./pages/AdminLogs";
 import AdminMedia from "./pages/AdminMedia";
+import AdminSocieties from "./pages/AdminSocieties";
 
 import NotFound from "./pages/NotFound";
 
@@ -259,11 +260,25 @@ function App() {
           />
 
           <Route
-            path="/admin/users"
+            path="/admin/societies"
             element={
               <ProtectedRoute>
                 <PermissionRoute
                   roles={CMS_ROLES}
+                  permission="manageSocieties"
+                >
+                  <AdminSocieties />
+                </PermissionRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute>
+                <PermissionRoute
+                  roles={["principal"]}
                   permission="manageUsers"
                 >
                   <AdminUsers />
