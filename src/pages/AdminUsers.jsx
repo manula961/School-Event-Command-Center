@@ -30,6 +30,7 @@ const ROLE_LABELS = {
 };
 
 const PERMISSION_LABELS = {
+  manageUsers: "Manage users & roles",
   manageEvents: "Manage events",
   publishEvents: "Publish events",
   approveEvents: "Approve events",
@@ -44,85 +45,44 @@ const PERMISSION_LABELS = {
 };
 
 function AdminUsers() {
-  const [
-    users,
-    setUsers,
-  ] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [societies, setSocieties] = useState([]);
 
-  const [
-    societies,
-    setSocieties,
-  ] = useState([]);
-
-  const [
-    formData,
-    setFormData,
-  ] = useState({
+  const [formData, setFormData] = useState({
     ...emptyForm,
   });
 
-  const [
-    loading,
-    setLoading,
-  ] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  const [
-    saving,
-    setSaving,
-  ] = useState(false);
+  const [showCreatePanel, setShowCreatePanel] =
+    useState(false);
 
-  const [
-    showCreatePanel,
-    setShowCreatePanel,
-  ] = useState(false);
+  const [editingUser, setEditingUser] =
+    useState(null);
 
-  const [
-    editingUser,
-    setEditingUser,
-  ] = useState(null);
+  const [editUserForm, setEditUserForm] =
+    useState({
+      ...emptyForm,
+    });
 
-  const [
-    editUserForm,
-    setEditUserForm,
-  ] = useState({
-    ...emptyForm,
-  });
+  const [userUpdating, setUserUpdating] =
+    useState(false);
 
-  const [
-    userUpdating,
-    setUserUpdating,
-  ] = useState(false);
+  const [deletingUserId, setDeletingUserId] =
+    useState(null);
 
-  const [
-    deletingUserId,
-    setDeletingUserId,
-  ] = useState(null);
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] =
+    useState("all");
 
-  const [
-    search,
-    setSearch,
-  ] = useState("");
-
-  const [
-    roleFilter,
-    setRoleFilter,
-  ] = useState("all");
-
-  const [
-    error,
-    setError,
-  ] = useState("");
-
-  const [
-    success,
-    setSuccess,
-  ] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   async function fetchUsers() {
     const {
       data,
-      error:
-        fetchError,
+      error: fetchError,
     } = await supabase
       .from("profiles")
       .select(`
@@ -141,16 +101,11 @@ function AdminUsers() {
           code
         )
       `)
-      .order(
-        "created_at",
-        {
-          ascending: false,
-        }
-      );
+      .order("created_at", {
+        ascending: false,
+      });
 
-    if (
-      fetchError
-    ) {
+    if (fetchError) {
       console.error(
         "Could not load CMS users:",
         fetchError
@@ -161,20 +116,16 @@ function AdminUsers() {
       );
 
       setUsers([]);
-
       return;
     }
 
-    setUsers(
-      data || []
-    );
+    setUsers(data || []);
   }
 
   async function fetchSocieties() {
     const {
       data,
-      error:
-        fetchError,
+      error: fetchError,
     } = await supabase
       .from("societies")
       .select(`
@@ -182,16 +133,11 @@ function AdminUsers() {
         name,
         code
       `)
-      .order(
-        "name",
-        {
-          ascending: true,
-        }
-      );
+      .order("name", {
+        ascending: true,
+      });
 
-    if (
-      fetchError
-    ) {
+    if (fetchError) {
       console.error(
         "Could not load societies:",
         fetchError
@@ -202,13 +148,10 @@ function AdminUsers() {
       );
 
       setSocieties([]);
-
       return;
     }
 
-    setSocieties(
-      data || []
-    );
+    setSocieties(data || []);
   }
 
   async function loadPage() {
@@ -227,90 +170,66 @@ function AdminUsers() {
     loadPage();
   }, []);
 
-  function handleChange(
-    event
-  ) {
+  function handleChange(event) {
     const {
       name,
       value,
     } = event.target;
 
-    setFormData(
-      (current) => ({
-        ...current,
-        [name]:
-          value,
-        ...(name ===
-          "role" &&
-        (
-          value ===
-            "vice_principal" ||
-          value ===
-            "principal" ||
-          value ===
-            "event_staff"
-        )
-          ? {
-              societyId:
-                "",
-            }
-          : {}),
-      })
-    );
+    setFormData((current) => ({
+      ...current,
 
-    if (
-      error
-    ) {
+      [name]: value,
+
+      ...(name === "role" &&
+      (
+        value === "vice_principal" ||
+        value === "principal" ||
+        value === "event_staff"
+      )
+        ? {
+            societyId: "",
+          }
+        : {}),
+    }));
+
+    if (error) {
       setError("");
     }
 
-    if (
-      success
-    ) {
+    if (success) {
       setSuccess("");
     }
   }
 
-  function handleEditUserChange(
-    event
-  ) {
+  function handleEditUserChange(event) {
     const {
       name,
       value,
     } = event.target;
 
-    setEditUserForm(
-      (current) => ({
-        ...current,
-        [name]:
-          value,
-        ...(name ===
-          "role" &&
-        (
-          value ===
-            "vice_principal" ||
-          value ===
-            "principal" ||
-          value ===
-            "event_staff"
-        )
-          ? {
-              societyId:
-                "",
-            }
-          : {}),
-      })
-    );
+    setEditUserForm((current) => ({
+      ...current,
 
-    if (
-      error
-    ) {
+      [name]: value,
+
+      ...(name === "role" &&
+      (
+        value === "vice_principal" ||
+        value === "principal" ||
+        value === "event_staff"
+      )
+        ? {
+            societyId: "",
+          }
+        : {}),
+    }));
+
+    if (error) {
       setError("");
     }
 
-    if (
-      success
-    ) {
+    if (success) {
       setSuccess("");
     }
   }
@@ -320,47 +239,38 @@ function AdminUsers() {
     permission,
     value
   ) {
-    setter(
-      (current) => {
-        const nextOverrides = {
-          ...(current.permissionOverrides ||
-            {}),
-        };
+    setter((current) => {
+      const nextOverrides = {
+        ...(current.permissionOverrides || {}),
+      };
 
-        if (
-          value ===
-          "default"
-        ) {
-          delete nextOverrides[
-            permission
-          ];
-        } else {
-          nextOverrides[
-            permission
-          ] =
-            value ===
-            "allow";
-        }
-
-        return {
-          ...current,
-          permissionOverrides:
-            nextOverrides,
-        };
+      if (value === "default") {
+        delete nextOverrides[
+          permission
+        ];
+      } else {
+        nextOverrides[
+          permission
+        ] =
+          value === "allow";
       }
-    );
+
+      return {
+        ...current,
+
+        permissionOverrides:
+          nextOverrides,
+      };
+    });
   }
 
   function resetPermissionOverrides(
     setter
   ) {
-    setter(
-      (current) => ({
-        ...current,
-        permissionOverrides:
-          {},
-      })
-    );
+    setter((current) => ({
+      ...current,
+      permissionOverrides: {},
+    }));
   }
 
   function openCreatePanel() {
@@ -369,43 +279,32 @@ function AdminUsers() {
 
     setFormData({
       ...emptyForm,
-      permissionOverrides:
-        {},
+      permissionOverrides: {},
     });
 
-    setShowCreatePanel(
-      true
-    );
+    setShowCreatePanel(true);
   }
 
   function closeCreatePanel() {
-    if (
-      saving
-    ) {
+    if (saving) {
       return;
     }
 
-    setShowCreatePanel(
-      false
-    );
+    setShowCreatePanel(false);
 
     setFormData({
       ...emptyForm,
-      permissionOverrides:
-        {},
+      permissionOverrides: {},
     });
 
     setError("");
   }
 
-  async function handleSubmit(
-    event
-  ) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     const fullName =
-      formData.fullName
-        .trim();
+      formData.fullName.trim();
 
     const email =
       formData.email
@@ -413,15 +312,10 @@ function AdminUsers() {
         .toLowerCase();
 
     const requiresSociety =
-      formData.role ===
-        "teacher" ||
-      formData.role ===
-        "student_admin";
+      formData.role === "teacher" ||
+      formData.role === "student_admin";
 
-    if (
-      !fullName ||
-      !email
-    ) {
+    if (!fullName || !email) {
       setError(
         "Name and email are required."
       );
@@ -441,9 +335,7 @@ function AdminUsers() {
     }
 
     if (
-      formData.password
-        .length <
-      8
+      formData.password.length < 8
     ) {
       setError(
         "Temporary password must contain at least 8 characters."
@@ -458,41 +350,38 @@ function AdminUsers() {
 
     const {
       data,
-      error:
-        createError,
+      error: createError,
     } =
-      await supabase
-        .functions
-        .invoke(
-          "create-cms-user",
-          {
-            body: {
-              fullName,
-              email,
-              password:
-                formData.password,
-              role:
-                formData.role,
-              title:
-                formData.title
-                  .trim() ||
-                null,
-              permissionOverrides:
-                formData
-                  .permissionOverrides ||
-                {},
-              societyId:
-                requiresSociety
-                  ? formData
-                      .societyId
-                  : null,
-            },
-          }
-        );
+      await supabase.functions.invoke(
+        "create-cms-user",
+        {
+          body: {
+            fullName,
+            email,
 
-    if (
-      createError
-    ) {
+            password:
+              formData.password,
+
+            role:
+              formData.role,
+
+            title:
+              formData.title.trim() ||
+              null,
+
+            permissionOverrides:
+              formData.permissionOverrides ||
+              {},
+
+            societyId:
+              requiresSociety
+                ? formData.societyId
+                : null,
+          },
+        }
+      );
+
+    if (createError) {
       console.error(
         "Could not create CMS user:",
         createError
@@ -504,19 +393,12 @@ function AdminUsers() {
       );
 
       setSaving(false);
-
       return;
     }
 
-    if (
-      data?.error
-    ) {
-      setError(
-        data.error
-      );
-
+    if (data?.error) {
+      setError(data.error);
       setSaving(false);
-
       return;
     }
 
@@ -526,67 +408,54 @@ function AdminUsers() {
 
     setFormData({
       ...emptyForm,
-      permissionOverrides:
-        {},
+      permissionOverrides: {},
     });
 
-    setShowCreatePanel(
-      false
-    );
-
+    setShowCreatePanel(false);
     setSaving(false);
 
     await fetchUsers();
   }
 
-  function openEditUser(
-    user
-  ) {
+  function openEditUser(user) {
     setError("");
     setSuccess("");
 
-    setEditingUser(
-      user
-    );
+    setEditingUser(user);
 
     setEditUserForm({
       fullName:
-        user.full_name ||
-        "",
+        user.full_name || "",
+
       email:
-        user.email ||
-        "",
-      password:
-        "",
+        user.email || "",
+
+      password: "",
+
       role:
         user.role,
+
       societyId:
-        user.society_id ||
-        "",
+        user.society_id || "",
+
       title:
-        user.title ||
-        "",
+        user.title || "",
+
       permissionOverrides:
-        user.permission_overrides ||
-        {},
+        user.permission_overrides || {},
     });
   }
 
   function closeEditUser() {
-    if (
-      userUpdating
-    ) {
+    if (userUpdating) {
       return;
     }
 
-    setEditingUser(
-      null
-    );
+    setEditingUser(null);
 
     setEditUserForm({
       ...emptyForm,
-      permissionOverrides:
-        {},
+      permissionOverrides: {},
     });
   }
 
@@ -595,33 +464,24 @@ function AdminUsers() {
   ) {
     event.preventDefault();
 
-    if (
-      !editingUser
-    ) {
+    if (!editingUser) {
       return;
     }
 
     const fullName =
-      editUserForm
-        .fullName
-        .trim();
+      editUserForm.fullName.trim();
 
     const email =
-      editUserForm
-        .email
+      editUserForm.email
         .trim()
         .toLowerCase();
 
     const requiresSociety =
-      editUserForm.role ===
-        "teacher" ||
+      editUserForm.role === "teacher" ||
       editUserForm.role ===
         "student_admin";
 
-    if (
-      !fullName ||
-      !email
-    ) {
+    if (!fullName || !email) {
       setError(
         "Name and email are required."
       );
@@ -631,8 +491,7 @@ function AdminUsers() {
 
     if (
       requiresSociety &&
-      !editUserForm
-        .societyId
+      !editUserForm.societyId
     ) {
       setError(
         "Select a society for this account."
@@ -643,10 +502,7 @@ function AdminUsers() {
 
     if (
       editUserForm.password &&
-      editUserForm
-        .password
-        .length <
-        8
+      editUserForm.password.length < 8
     ) {
       setError(
         "New password must contain at least 8 characters."
@@ -655,56 +511,51 @@ function AdminUsers() {
       return;
     }
 
-    setUserUpdating(
-      true
-    );
-
+    setUserUpdating(true);
     setError("");
     setSuccess("");
 
     const {
       data,
-      error:
-        updateError,
+      error: updateError,
     } =
-      await supabase
-        .functions
-        .invoke(
-          "update-cms-user",
-          {
-            body: {
-              userId:
-                editingUser.id,
-              fullName,
-              email,
-              password:
-                editUserForm.password ||
-                null,
-              role:
-                editUserForm.role,
-              title:
-                editUserForm.title
-                  .trim() ||
-                null,
-              permissionOverrides:
-                editUserForm
-                  .permissionOverrides ||
-                {},
-              societyId:
-                requiresSociety
-                  ? editUserForm
-                      .societyId
-                  : null,
-              isActive:
-                editingUser
-                  .is_active,
-            },
-          }
-        );
+      await supabase.functions.invoke(
+        "update-cms-user",
+        {
+          body: {
+            userId:
+              editingUser.id,
 
-    if (
-      updateError
-    ) {
+            fullName,
+            email,
+
+            password:
+              editUserForm.password ||
+              null,
+
+            role:
+              editUserForm.role,
+
+            title:
+              editUserForm.title.trim() ||
+              null,
+
+            permissionOverrides:
+              editUserForm.permissionOverrides ||
+              {},
+
+            societyId:
+              requiresSociety
+                ? editUserForm.societyId
+                : null,
+
+            isActive:
+              editingUser.is_active,
+          },
+        }
+      );
+
+    if (updateError) {
       console.error(
         "Could not update CMS user:",
         updateError
@@ -715,24 +566,13 @@ function AdminUsers() {
           "Could not update CMS user."
       );
 
-      setUserUpdating(
-        false
-      );
-
+      setUserUpdating(false);
       return;
     }
 
-    if (
-      data?.error
-    ) {
-      setError(
-        data.error
-      );
-
-      setUserUpdating(
-        false
-      );
-
+    if (data?.error) {
+      setError(data.error);
+      setUserUpdating(false);
       return;
     }
 
@@ -740,33 +580,23 @@ function AdminUsers() {
       `${fullName} was updated successfully.`
     );
 
-    setEditingUser(
-      null
-    );
+    setEditingUser(null);
 
     setEditUserForm({
       ...emptyForm,
-      permissionOverrides:
-        {},
+      permissionOverrides: {},
     });
 
-    setUserUpdating(
-      false
-    );
+    setUserUpdating(false);
 
     await fetchUsers();
   }
 
-  async function deleteUser(
-    user
-  ) {
+  async function deleteUser(user) {
     setError("");
     setSuccess("");
 
-    if (
-      user.role ===
-      "principal"
-    ) {
+    if (user.role === "principal") {
       setError(
         "The Principal account cannot be deleted."
       );
@@ -785,36 +615,27 @@ function AdminUsers() {
 This will remove the CMS account and cannot be undone.`
       );
 
-    if (
-      !confirmed
-    ) {
+    if (!confirmed) {
       return;
     }
 
-    setDeletingUserId(
-      user.id
-    );
+    setDeletingUserId(user.id);
 
     const {
       data,
-      error:
-        deleteError,
+      error: deleteError,
     } =
-      await supabase
-        .functions
-        .invoke(
-          "delete-cms-user",
-          {
-            body: {
-              userId:
-                user.id,
-            },
-          }
-        );
+      await supabase.functions.invoke(
+        "delete-cms-user",
+        {
+          body: {
+            userId:
+              user.id,
+          },
+        }
+      );
 
-    if (
-      deleteError
-    ) {
+    if (deleteError) {
       console.error(
         "Delete user error:",
         deleteError
@@ -825,24 +646,13 @@ This will remove the CMS account and cannot be undone.`
           "Could not delete CMS user."
       );
 
-      setDeletingUserId(
-        null
-      );
-
+      setDeletingUserId(null);
       return;
     }
 
-    if (
-      data?.error
-    ) {
-      setError(
-        data.error
-      );
-
-      setDeletingUserId(
-        null
-      );
-
+    if (data?.error) {
+      setError(data.error);
+      setDeletingUserId(null);
       return;
     }
 
@@ -856,23 +666,17 @@ This will remove the CMS account and cannot be undone.`
     );
 
     if (
-      editingUser?.id ===
-      user.id
+      editingUser?.id === user.id
     ) {
-      setEditingUser(
-        null
-      );
+      setEditingUser(null);
 
       setEditUserForm({
         ...emptyForm,
-        permissionOverrides:
-          {},
+        permissionOverrides: {},
       });
     }
 
-    setDeletingUserId(
-      null
-    );
+    setDeletingUserId(null);
 
     await fetchUsers();
   }
@@ -883,10 +687,7 @@ This will remove the CMS account and cannot be undone.`
     setError("");
     setSuccess("");
 
-    if (
-      user.role ===
-      "principal"
-    ) {
+    if (user.role === "principal") {
       setError(
         "The Principal account cannot be disabled."
       );
@@ -895,25 +696,22 @@ This will remove the CMS account and cannot be undone.`
     }
 
     const {
-      error:
-        statusError,
+      error: statusError,
     } = await supabase
       .from("profiles")
       .update({
         is_active:
           !user.is_active,
+
         updated_at:
-          new Date()
-            .toISOString(),
+          new Date().toISOString(),
       })
       .eq(
         "id",
         user.id
       );
 
-    if (
-      statusError
-    ) {
+    if (statusError) {
       console.error(
         "Could not update account status:",
         statusError
@@ -931,15 +729,20 @@ This will remove the CMS account and cannot be undone.`
         user.is_active
           ? "disabled_user"
           : "activated_user",
+
       entityType:
         "user",
+
       entityId:
         user.id,
+
       details: {
         full_name:
           user.full_name,
+
         email:
           user.email,
+
         role:
           user.role,
       },
@@ -973,31 +776,25 @@ This will remove the CMS account and cannot be undone.`
             user.full_name,
             user.email,
             user.title,
+
             ROLE_LABELS[
               user.role
             ],
-            user.societies
-              ?.name,
-            user.societies
-              ?.code,
+
+            user.societies?.name,
+            user.societies?.code,
           ]
-            .filter(
-              Boolean
-            )
+            .filter(Boolean)
             .join(" ")
             .toLowerCase();
 
           const matchesSearch =
             !query ||
-            text.includes(
-              query
-            );
+            text.includes(query);
 
           const matchesRole =
-            roleFilter ===
-              "all" ||
-            user.role ===
-              roleFilter;
+            roleFilter === "all" ||
+            user.role === roleFilter;
 
           return (
             matchesSearch &&
@@ -1014,8 +811,7 @@ This will remove the CMS account and cannot be undone.`
   const teacherCount =
     users.filter(
       (user) =>
-        user.role ===
-        "teacher"
+        user.role === "teacher"
     ).length;
 
   const studentAdminCount =
@@ -1131,9 +927,7 @@ This will remove the CMS account and cannot be undone.`
           </span>
 
           <strong>
-            {
-              studentAdminCount
-            }
+            {studentAdminCount}
           </strong>
         </div>
 
@@ -1157,15 +951,10 @@ This will remove the CMS account and cannot be undone.`
 
             <input
               type="search"
-              value={
-                search
-              }
-              onChange={(
-                event
-              ) =>
+              value={search}
+              onChange={(event) =>
                 setSearch(
-                  event.target
-                    .value
+                  event.target.value
                 )
               }
               placeholder="Search users..."
@@ -1173,15 +962,10 @@ This will remove the CMS account and cannot be undone.`
           </div>
 
           <select
-            value={
-              roleFilter
-            }
-            onChange={(
-              event
-            ) =>
+            value={roleFilter}
+            onChange={(event) =>
               setRoleFilter(
-                event.target
-                  .value
+                event.target.value
               )
             }
           >
@@ -1215,8 +999,7 @@ This will remove the CMS account and cannot be undone.`
           <LoadingState
             label="Loading users..."
           />
-        ) : filteredUsers.length ===
-          0 ? (
+        ) : filteredUsers.length === 0 ? (
           <EmptyState
             title="No users found"
             description="No users match the current filters."
@@ -1237,9 +1020,7 @@ This will remove the CMS account and cannot be undone.`
 
                 return (
                   <article
-                    key={
-                      user.id
-                    }
+                    key={user.id}
                     className="admin-user-row"
                   >
                     <div className="admin-user-avatar">
@@ -1251,9 +1032,7 @@ This will remove the CMS account and cannot be undone.`
                     <div className="admin-user-main">
                       <div className="admin-user-heading">
                         <h3>
-                          {
-                            user.full_name
-                          }
+                          {user.full_name}
                         </h3>
 
                         <span
@@ -1279,18 +1058,14 @@ This will remove the CMS account and cannot be undone.`
 
                         {user.title && (
                           <span>
-                            {
-                              user.title
-                            }
+                            {user.title}
                           </span>
                         )}
                       </div>
 
                       <div className="admin-user-meta">
                         <span>
-                          {
-                            user.email
-                          }
+                          {user.email}
                         </span>
 
                         {user.societies && (
@@ -1311,12 +1086,10 @@ This will remove the CMS account and cannot be undone.`
                           </span>
                         )}
 
-                        {overrideCount >
-                          0 && (
+                        {overrideCount > 0 && (
                           <span>
                             {overrideCount} custom{" "}
-                            {overrideCount ===
-                            1
+                            {overrideCount === 1
                               ? "permission"
                               : "permissions"}
                           </span>
@@ -1328,9 +1101,7 @@ This will remove the CMS account and cannot be undone.`
                       <button
                         type="button"
                         className="admin-action-button"
-                        disabled={
-                          deleting
-                        }
+                        disabled={deleting}
                         onClick={() =>
                           openEditUser(
                             user
@@ -1400,9 +1171,7 @@ This will remove the CMS account and cannot be undone.`
               onClose={
                 closeCreatePanel
               }
-              disabled={
-                saving
-              }
+              disabled={saving}
             />
 
             <form
@@ -1412,9 +1181,7 @@ This will remove the CMS account and cannot be undone.`
               }
             >
               <UserFields
-                data={
-                  formData
-                }
+                data={formData}
                 onChange={
                   handleChange
                 }
@@ -1440,9 +1207,7 @@ This will remove the CMS account and cannot be undone.`
               />
 
               <ModalActions
-                saving={
-                  saving
-                }
+                saving={saving}
                 saveText="Create account"
                 savingText="Creating..."
                 onCancel={
@@ -1531,8 +1296,7 @@ function UserFields({
   onPermissionReset,
 }) {
   const requiresSociety =
-    data.role ===
-      "teacher" ||
+    data.role === "teacher" ||
     data.role ===
       "student_admin";
 
@@ -1545,12 +1309,8 @@ function UserFields({
 
         <input
           name="fullName"
-          value={
-            data.fullName
-          }
-          onChange={
-            onChange
-          }
+          value={data.fullName}
+          onChange={onChange}
           required
         />
       </div>
@@ -1563,12 +1323,8 @@ function UserFields({
         <input
           name="email"
           type="email"
-          value={
-            data.email
-          }
-          onChange={
-            onChange
-          }
+          value={data.email}
+          onChange={onChange}
           required
         />
       </div>
@@ -1580,12 +1336,8 @@ function UserFields({
 
         <select
           name="role"
-          value={
-            data.role
-          }
-          onChange={
-            onChange
-          }
+          value={data.role}
+          onChange={onChange}
         >
           <option value="student_admin">
             Student Admin
@@ -1620,12 +1372,9 @@ function UserFields({
         <input
           name="title"
           value={
-            data.title ||
-            ""
+            data.title || ""
           }
-          onChange={
-            onChange
-          }
+          onChange={onChange}
           placeholder="e.g. Sports Coordinator"
         />
       </div>
@@ -1641,9 +1390,7 @@ function UserFields({
             value={
               data.societyId
             }
-            onChange={
-              onChange
-            }
+            onChange={onChange}
             required
           >
             <option value="">
@@ -1696,12 +1443,8 @@ function UserFields({
         <input
           name="password"
           type="password"
-          value={
-            data.password
-          }
-          onChange={
-            onChange
-          }
+          value={data.password}
+          onChange={onChange}
           minLength="8"
           required={
             passwordRequired
@@ -1725,8 +1468,7 @@ function PermissionEditor({
 }) {
   const overrideCount =
     Object.keys(
-      overrides ||
-      {}
+      overrides || {}
     ).length;
 
   return (
@@ -1749,14 +1491,11 @@ function PermissionEditor({
           </p>
         </div>
 
-        {overrideCount >
-          0 && (
+        {overrideCount > 0 && (
           <button
             type="button"
             className="admin-permission-reset"
-            onClick={
-              onReset
-            }
+            onClick={onReset}
           >
             Reset all
           </button>
@@ -1800,9 +1539,7 @@ function PermissionEditor({
 
             return (
               <div
-                key={
-                  permission
-                }
+                key={permission}
                 className={
                   `admin-permission-row admin-permission-row--${value}`
                 }
@@ -1813,27 +1550,20 @@ function PermissionEditor({
                   </strong>
 
                   <span>
-                    {value ===
-                    "default"
+                    {value === "default"
                       ? "Uses role default"
-                      : value ===
-                          "allow"
+                      : value === "allow"
                         ? "Explicitly allowed"
                         : "Explicitly denied"}
                   </span>
                 </div>
 
                 <select
-                  value={
-                    value
-                  }
-                  onChange={(
-                    event
-                  ) =>
+                  value={value}
+                  onChange={(event) =>
                     onChange(
                       permission,
-                      event.target
-                        .value
+                      event.target.value
                     )
                   }
                   aria-label={
@@ -1882,12 +1612,8 @@ function ModalHeader({
       <button
         type="button"
         className="admin-editor-close"
-        onClick={
-          onClose
-        }
-        disabled={
-          disabled
-        }
+        onClick={onClose}
+        disabled={disabled}
         aria-label={
           `Close ${title}`
         }
@@ -1909,9 +1635,7 @@ function ModalActions({
       <button
         type="submit"
         className="btn btn-primary"
-        disabled={
-          saving
-        }
+        disabled={saving}
       >
         {saving
           ? savingText
@@ -1927,12 +1651,8 @@ function ModalActions({
       <button
         type="button"
         className="btn btn-outline"
-        onClick={
-          onCancel
-        }
-        disabled={
-          saving
-        }
+        onClick={onCancel}
+        disabled={saving}
       >
         Cancel
       </button>
@@ -1940,22 +1660,15 @@ function ModalActions({
   );
 }
 
-function getInitials(
-  name
-) {
-  if (
-    !name
-  ) {
+function getInitials(name) {
+  if (!name) {
     return "?";
   }
 
   return name
     .trim()
     .split(/\s+/)
-    .slice(
-      0,
-      2
-    )
+    .slice(0, 2)
     .map(
       (part) =>
         part

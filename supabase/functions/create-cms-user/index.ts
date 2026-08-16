@@ -14,6 +14,7 @@ const allowedRoles = [
 ];
 
 const allowedPermissionOverrides = [
+  "manageUsers",
   "manageEvents",
   "publishEvents",
   "manageAnnouncements",
@@ -639,7 +640,6 @@ function response(
 
       headers: {
         ...corsHeaders,
-
         "Content-Type":
           "application/json",
       },

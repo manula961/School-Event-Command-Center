@@ -15,6 +15,7 @@ const allowedRoles = [
 ];
 
 const allowedPermissionOverrides = [
+  "manageUsers",
   "manageEvents",
   "publishEvents",
   "manageAnnouncements",
@@ -121,7 +122,9 @@ Deno.serve(async (req: Request) => {
         callerProfileError,
     } =
       await callerClient
-        .from("profiles")
+        .from(
+          "profiles"
+        )
         .select(`
           role,
           is_active
@@ -341,7 +344,9 @@ Deno.serve(async (req: Request) => {
         targetProfileError,
     } =
       await adminClient
-        .from("profiles")
+        .from(
+          "profiles"
+        )
         .select(`
           id,
           role,
@@ -489,7 +494,9 @@ Deno.serve(async (req: Request) => {
         profileUpdateError,
     } =
       await adminClient
-        .from("profiles")
+        .from(
+          "profiles"
+        )
         .update({
           full_name:
             cleanFullName,

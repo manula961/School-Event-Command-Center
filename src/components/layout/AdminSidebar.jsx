@@ -32,6 +32,7 @@ function AdminSidebar() {
   const hasDashboardAccess =
     role !== "event_staff" &&
     [
+      "manageUsers",
       "manageEvents",
       "publishEvents",
       "approveEvents",
@@ -144,8 +145,11 @@ function AdminSidebar() {
       to: "/admin/users",
       label: "Users & Roles",
       icon: "♙",
-      visible:
-        role === "principal",
+      visible: canUser(
+        role,
+        "manageUsers",
+        overrides
+      ),
     },
     {
       to: "/admin/logs",
@@ -227,16 +231,10 @@ function AdminSidebar() {
           {visibleLinks.map(
             (item) => (
               <NavLink
-                key={
-                  item.to
-                }
-                to={
-                  item.to
-                }
-                end={
-                  item.end
-                }
-                className={({
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                className={( {
                   isActive,
                 }) =>
                   `admin-navigation-link ${
