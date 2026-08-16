@@ -1,6 +1,5 @@
 import { supabase } from "../services/supabase";
 
-
 export async function logActivity({
   action,
   entityType,
@@ -12,7 +11,6 @@ export async function logActivity({
       data: { user },
     } = await supabase.auth.getUser();
 
-
     if (!user) {
       console.warn(
         "Activity log skipped: no authenticated user."
@@ -20,7 +18,6 @@ export async function logActivity({
 
       return;
     }
-
 
     const { error } = await supabase
       .from("activity_logs")
@@ -34,7 +31,6 @@ export async function logActivity({
             : String(entityId),
         details,
       });
-
 
     if (error) {
       console.error(

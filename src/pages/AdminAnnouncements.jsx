@@ -10,7 +10,6 @@ import AdminLayout from "../components/layout/AdminLayout";
 import LoadingState from "../components/common/LoadingState";
 import EmptyState from "../components/common/EmptyState";
 
-
 const emptyForm = {
   title: "",
   message: "",
@@ -18,14 +17,12 @@ const emptyForm = {
   published_at: "",
 };
 
-
 const ANNOUNCEMENT_TYPES = [
   "Update",
   "Reminder",
   "Registration",
   "Important",
 ];
-
 
 function AdminAnnouncements() {
   const [
@@ -78,7 +75,6 @@ function AdminAnnouncements() {
     setTypeFilter,
   ] = useState("All");
 
-
   async function fetchAnnouncements() {
     setLoading(true);
     setError("");
@@ -102,11 +98,10 @@ function AdminAnnouncements() {
         fetchError
       );
 
+      setAnnouncements([]);
       setError(
         "Could not load announcements."
       );
-
-      setAnnouncements([]);
     } else {
       setAnnouncements(
         data || []
@@ -116,15 +111,11 @@ function AdminAnnouncements() {
     setLoading(false);
   }
 
-
   useEffect(() => {
     fetchAnnouncements();
   }, []);
 
-
-  function handleChange(
-    event
-  ) {
+  function handleChange(event) {
     const {
       name,
       value,
@@ -137,15 +128,9 @@ function AdminAnnouncements() {
       })
     );
 
-    if (error) {
-      setError("");
-    }
-
-    if (success) {
-      setSuccess("");
-    }
+    setError("");
+    setSuccess("");
   }
-
 
   async function handleSubmit(
     event
@@ -154,21 +139,16 @@ function AdminAnnouncements() {
 
     const payload = {
       title:
-        formData
-          .title
-          .trim(),
+        formData.title.trim(),
 
       message:
-        formData
-          .message
-          .trim(),
+        formData.message.trim(),
 
       type:
         formData.type,
 
       published_at:
-        formData
-          .published_at,
+        formData.published_at,
     };
 
     if (
@@ -191,32 +171,24 @@ function AdminAnnouncements() {
     let result;
 
     if (editingId) {
-      result =
-        await supabase
-          .from("announcements")
-          .update(
-            payload
-          )
-          .eq(
-            "id",
-            editingId
-          )
-          .select()
-          .single();
+      result = await supabase
+        .from("announcements")
+        .update(payload)
+        .eq(
+          "id",
+          editingId
+        )
+        .select()
+        .single();
     } else {
-      result =
-        await supabase
-          .from("announcements")
-          .insert(
-            payload
-          )
-          .select()
-          .single();
+      result = await supabase
+        .from("announcements")
+        .insert(payload)
+        .select()
+        .single();
     }
 
-    if (
-      result.error
-    ) {
+    if (result.error) {
       console.error(
         "Could not save announcement:",
         result.error
@@ -243,17 +215,11 @@ function AdminAnnouncements() {
       ...emptyForm,
     });
 
-    setEditingId(
-      null
-    );
-
-    setSaving(
-      false
-    );
+    setEditingId(null);
+    setSaving(false);
 
     await fetchAnnouncements();
   }
-
 
   function handleEdit(
     announcement
@@ -287,24 +253,20 @@ function AdminAnnouncements() {
 
     window.scrollTo({
       top: 0,
-      behavior:
-        "smooth",
+      behavior: "smooth",
     });
   }
 
-
   function cancelEdit() {
-    setEditingId(
-      null
-    );
+    setEditingId(null);
 
     setFormData({
       ...emptyForm,
     });
 
     setError("");
+    setSuccess("");
   }
-
 
   async function handleDelete(
     id
@@ -312,19 +274,14 @@ function AdminAnnouncements() {
     const announcement =
       announcements.find(
         (item) =>
-          String(
-            item.id
-          ) ===
-          String(
-            id
-          )
+          String(item.id) ===
+          String(id)
       );
 
     const confirmed =
       window.confirm(
         `Delete "${
-          announcement
-            ?.title ||
+          announcement?.title ||
           "this announcement"
         }"?`
       );
@@ -333,10 +290,7 @@ function AdminAnnouncements() {
       return;
     }
 
-    setDeletingId(
-      id
-    );
-
+    setDeletingId(id);
     setError("");
     setSuccess("");
 
@@ -360,24 +314,16 @@ function AdminAnnouncements() {
         "Could not delete announcement."
       );
 
-      setDeletingId(
-        null
-      );
+      setDeletingId(null);
 
       return;
     }
 
     if (
-      String(
-        editingId
-      ) ===
-      String(
-        id
-      )
+      String(editingId) ===
+      String(id)
     ) {
-      setEditingId(
-        null
-      );
+      setEditingId(null);
 
       setFormData({
         ...emptyForm,
@@ -388,13 +334,10 @@ function AdminAnnouncements() {
       "Announcement deleted successfully."
     );
 
-    setDeletingId(
-      null
-    );
+    setDeletingId(null);
 
     await fetchAnnouncements();
   }
-
 
   const filteredAnnouncements =
     useMemo(() => {
@@ -404,29 +347,18 @@ function AdminAnnouncements() {
           .toLowerCase();
 
       return announcements.filter(
-        (
-          announcement
-        ) => {
+        (announcement) => {
           const matchesSearch =
             !query ||
-            announcement
-              .title
+            announcement.title
               ?.toLowerCase()
-              .includes(
-                query
-              ) ||
-            announcement
-              .message
+              .includes(query) ||
+            announcement.message
               ?.toLowerCase()
-              .includes(
-                query
-              ) ||
-            announcement
-              .type
+              .includes(query) ||
+            announcement.type
               ?.toLowerCase()
-              .includes(
-                query
-              );
+              .includes(query);
 
           const matchesType =
             typeFilter ===
@@ -446,14 +378,10 @@ function AdminAnnouncements() {
       typeFilter,
     ]);
 
-
   return (
     <AdminLayout>
-
       <div className="admin-page-heading">
-
         <div>
-
           <span className="admin-eyebrow">
             Announcement Management
           </span>
@@ -468,31 +396,21 @@ function AdminAnnouncements() {
             information across the event
             platform.
           </p>
-
         </div>
 
-
         <div className="admin-page-count">
-
           <strong>
-            {
-              announcements
-                .length
-            }
+            {announcements.length}
           </strong>
 
           <span>
             Total announcements
           </span>
-
         </div>
-
       </div>
-
 
       {error && (
         <div className="admin-inline-error">
-
           <span>
             !
           </span>
@@ -500,14 +418,11 @@ function AdminAnnouncements() {
           <p>
             {error}
           </p>
-
         </div>
       )}
 
-
       {success && (
         <div className="admin-inline-success">
-
           <span>
             ✓
           </span>
@@ -515,19 +430,13 @@ function AdminAnnouncements() {
           <p>
             {success}
           </p>
-
         </div>
       )}
 
-
       <div className="admin-announcements-layout">
-
         <section className="admin-editor-card">
-
           <div className="admin-editor-header">
-
             <div>
-
               <span>
                 {editingId
                   ? "Editing announcement"
@@ -539,9 +448,7 @@ function AdminAnnouncements() {
                   ? "Update announcement"
                   : "Publish announcement"}
               </h2>
-
             </div>
-
 
             {editingId && (
               <button
@@ -558,9 +465,7 @@ function AdminAnnouncements() {
                 ×
               </button>
             )}
-
           </div>
-
 
           <form
             className="admin-announcement-form"
@@ -568,9 +473,7 @@ function AdminAnnouncements() {
               handleSubmit
             }
           >
-
             <div className="admin-field">
-
               <label htmlFor="announcement-title">
                 Title
               </label>
@@ -590,14 +493,10 @@ function AdminAnnouncements() {
                 }
                 required
               />
-
             </div>
 
-
             <div className="admin-form-row">
-
               <div className="admin-field">
-
                 <label htmlFor="announcement-type">
                   Type
                 </label>
@@ -616,16 +515,12 @@ function AdminAnnouncements() {
                   }
                   required
                 >
-
                   <option value="">
                     Choose type
                   </option>
 
-
                   {ANNOUNCEMENT_TYPES.map(
-                    (
-                      type
-                    ) => (
+                    (type) => (
                       <option
                         key={
                           type
@@ -638,14 +533,10 @@ function AdminAnnouncements() {
                       </option>
                     )
                   )}
-
                 </select>
-
               </div>
 
-
               <div className="admin-field">
-
                 <label htmlFor="published-at">
                   Publish date
                 </label>
@@ -666,14 +557,10 @@ function AdminAnnouncements() {
                   }
                   required
                 />
-
               </div>
-
             </div>
 
-
             <div className="admin-field">
-
               <label htmlFor="announcement-message">
                 Message
               </label>
@@ -694,12 +581,9 @@ function AdminAnnouncements() {
                 }
                 required
               />
-
             </div>
 
-
             <div className="admin-form-actions">
-
               <button
                 type="submit"
                 className="btn btn-primary admin-save-button"
@@ -707,7 +591,6 @@ function AdminAnnouncements() {
                   saving
                 }
               >
-
                 {saving
                   ? "Saving..."
                   : editingId
@@ -719,9 +602,7 @@ function AdminAnnouncements() {
                     →
                   </span>
                 )}
-
               </button>
-
 
               {editingId && (
                 <button
@@ -737,20 +618,13 @@ function AdminAnnouncements() {
                   Cancel
                 </button>
               )}
-
             </div>
-
           </form>
-
         </section>
 
-
         <section className="admin-announcements-panel">
-
           <div className="admin-announcements-panel-header">
-
             <div>
-
               <span>
                 Published feed
               </span>
@@ -758,14 +632,10 @@ function AdminAnnouncements() {
               <h2>
                 Current announcements
               </h2>
-
             </div>
 
-
             <div className="admin-announcement-tools">
-
               <div className="admin-events-search">
-
                 <span>
                   ⌕
                 </span>
@@ -777,18 +647,14 @@ function AdminAnnouncements() {
                   }
                   onChange={(
                     event
-                  ) =>
+                  ) => {
                     setSearch(
-                      event
-                        .target
-                        .value
-                    )
-                  }
+                      event.target.value
+                    );
+                  }}
                   placeholder="Search announcements..."
                 />
-
               </div>
-
 
               <select
                 className="admin-announcement-filter"
@@ -797,24 +663,18 @@ function AdminAnnouncements() {
                 }
                 onChange={(
                   event
-                ) =>
+                ) => {
                   setTypeFilter(
-                    event
-                      .target
-                      .value
-                  )
-                }
+                    event.target.value
+                  );
+                }}
               >
-
                 <option value="All">
                   All types
                 </option>
 
-
                 {ANNOUNCEMENT_TYPES.map(
-                  (
-                    type
-                  ) => (
+                  (type) => (
                     <option
                       key={
                         type
@@ -833,16 +693,11 @@ function AdminAnnouncements() {
                     </option>
                   )
                 )}
-
               </select>
-
             </div>
-
           </div>
 
-
           <div className="admin-events-results">
-
             <span>
               Showing{" "}
               {
@@ -855,9 +710,7 @@ function AdminAnnouncements() {
                   .length
               }
             </span>
-
           </div>
-
 
           {loading ? (
             <LoadingState
@@ -884,7 +737,6 @@ function AdminAnnouncements() {
             />
           ) : (
             <div className="admin-announcement-list-new">
-
               {filteredAnnouncements.map(
                 (
                   announcement
@@ -909,18 +761,14 @@ function AdminAnnouncements() {
                         announcement.id
                       }
                     >
-
                       <div
                         className={
                           `admin-announcement-type-marker ${typeClass}`
                         }
                       />
 
-
                       <div className="admin-announcement-main">
-
                         <div className="admin-announcement-topline">
-
                           <span
                             className={
                               `admin-announcement-type ${typeClass}`
@@ -931,16 +779,13 @@ function AdminAnnouncements() {
                               "Update"}
                           </span>
 
-
                           <span className="admin-announcement-date">
                             {formatDate(
                               announcement
                                 .published_at
                             )}
                           </span>
-
                         </div>
-
 
                         <h3>
                           {
@@ -949,19 +794,15 @@ function AdminAnnouncements() {
                           }
                         </h3>
 
-
                         <p>
                           {
                             announcement
                               .message
                           }
                         </p>
-
                       </div>
 
-
                       <div className="admin-event-row-actions">
-
                         <button
                           type="button"
                           className="admin-action-button"
@@ -976,7 +817,6 @@ function AdminAnnouncements() {
                         >
                           Edit
                         </button>
-
 
                         <button
                           type="button"
@@ -994,25 +834,18 @@ function AdminAnnouncements() {
                             ? "Deleting..."
                             : "Delete"}
                         </button>
-
                       </div>
-
                     </article>
                   );
                 }
               )}
-
             </div>
           )}
-
         </section>
-
       </div>
-
     </AdminLayout>
   );
 }
-
 
 function getTypeClass(
   type
@@ -1048,7 +881,6 @@ function getTypeClass(
   return "update";
 }
 
-
 function normalizeDateForInput(
   date
 ) {
@@ -1057,9 +889,7 @@ function normalizeDateForInput(
   }
 
   const value =
-    String(
-      date
-    );
+    String(date);
 
   const match =
     value.match(
@@ -1070,7 +900,6 @@ function normalizeDateForInput(
     ? match[1]
     : "";
 }
-
 
 function formatDate(
   date
@@ -1104,17 +933,11 @@ function formatDate(
   return value.toLocaleDateString(
     "en-US",
     {
-      day:
-        "2-digit",
-
-      month:
-        "short",
-
-      year:
-        "numeric",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     }
   );
 }
-
 
 export default AdminAnnouncements;

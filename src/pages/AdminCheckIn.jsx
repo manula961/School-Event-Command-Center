@@ -5,133 +5,55 @@ import {
   useState,
 } from "react";
 
-import {
-  Html5Qrcode,
-} from "html5-qrcode";
+import { Html5Qrcode } from "html5-qrcode";
 
 import { supabase } from "../services/supabase";
 
 import AdminLayout from "../components/layout/AdminLayout";
 
-
-const SCANNER_ID =
-  "eventhub-checkin-reader";
-
+const SCANNER_ID = "eventhub-checkin-reader";
 
 function AdminCheckIn() {
-  const scannerRef =
-    useRef(null);
+  const scannerRef = useRef(null);
+  const scanningRef = useRef(false);
+  const scanLockedRef = useRef(false);
 
-  const scanningRef =
-    useRef(false);
+  const [ticketCode, setTicketCode] = useState("");
+  const [registration, setRegistration] = useState(null);
+  const [recentCheckIns, setRecentCheckIns] = useState([]);
 
-  const scanLockedRef =
-    useRef(false);
+  const [searching, setSearching] = useState(false);
+  const [checkingIn, setCheckingIn] = useState(false);
+  const [recentLoading, setRecentLoading] = useState(true);
+  const [scannerStarting, setScannerStarting] = useState(false);
+  const [scannerActive, setScannerActive] = useState(false);
 
+  const [scannerError, setScannerError] = useState("");
+  const [recentError, setRecentError] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const [
-    ticketCode,
-    setTicketCode,
-  ] = useState("");
+  const checkedInTime = useMemo(() => {
+    if (!registration?.checked_in_at) {
+      return null;
+    }
 
-  const [
-    registration,
-    setRegistration,
-  ] = useState(null);
+    const date = new Date(
+      registration.checked_in_at
+    );
 
-  const [
-    recentCheckIns,
-    setRecentCheckIns,
-  ] = useState([]);
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
 
-  const [
-    searching,
-    setSearching,
-  ] = useState(false);
-
-  const [
-    checkingIn,
-    setCheckingIn,
-  ] = useState(false);
-
-  const [
-    recentLoading,
-    setRecentLoading,
-  ] = useState(true);
-
-  const [
-    scannerStarting,
-    setScannerStarting,
-  ] = useState(false);
-
-  const [
-    scannerActive,
-    setScannerActive,
-  ] = useState(false);
-
-  const [
-    scannerError,
-    setScannerError,
-  ] = useState("");
-
-  const [
-    recentError,
-    setRecentError,
-  ] = useState("");
-
-  const [
-    error,
-    setError,
-  ] = useState("");
-
-  const [
-    success,
-    setSuccess,
-  ] = useState("");
-
-
-  const checkedInTime =
-    useMemo(() => {
-      if (
-        !registration
-          ?.checked_in_at
-      ) {
-        return null;
-      }
-
-      const date =
-        new Date(
-          registration
-            .checked_in_at
-        );
-
-      if (
-        Number.isNaN(
-          date.getTime()
-        )
-      ) {
-        return null;
-      }
-
-      return date.toLocaleString(
-        "en-US",
-        {
-          year:
-            "numeric",
-          month:
-            "short",
-          day:
-            "numeric",
-          hour:
-            "numeric",
-          minute:
-            "2-digit",
-        }
-      );
-    }, [
-      registration,
-    ]);
-
+    return date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }, [registration]);
 
   useEffect(() => {
     fetchRecentCheckIns();
@@ -141,27 +63,22 @@ function AdminCheckIn() {
     };
   }, []);
 
-
   async function fetchRecentCheckIns() {
     setRecentLoading(true);
     setRecentError("");
 
     const {
       data,
-      error:
-        recentCheckInError,
-    } = await supabase
-      .rpc(
-        "recent_checkins",
-        {
-          p_limit: 10,
-          p_event_id: null,
-        }
-      );
+      error: recentCheckInError,
+    } = await supabase.rpc(
+      "recent_checkins",
+      {
+        p_limit: 10,
+        p_event_id: null,
+      }
+    );
 
-    if (
-      recentCheckInError
-    ) {
+    if (recentCheckInError) {
       console.error(
         "Could not load recent check-ins:",
         recentCheckInError
@@ -177,13 +94,9 @@ function AdminCheckIn() {
       return;
     }
 
-    setRecentCheckIns(
-      data || []
-    );
-
+    setRecentCheckIns(data || []);
     setRecentLoading(false);
   }
-
 
   function resetResult() {
     setRegistration(null);
@@ -191,88 +104,44 @@ function AdminCheckIn() {
     setSuccess("");
   }
 
-
-  function normalizeTicketCode(
-    value
-  ) {
-    return String(
-      value || ""
-    )
+  function normalizeTicketCode(value) {
+    return String(value || "")
       .trim()
       .toUpperCase();
   }
 
-
-  function mapTicketRecord(
-    record
-  ) {
+  function mapTicketRecord(record) {
     if (!record) {
       return null;
     }
 
     return {
-      id:
-        record.id,
-
-      created_at:
-        record.created_at,
-
-      name:
-        record.name,
-
-      email:
-        record.email,
-
-      ticket_code:
-        record.ticket_code,
-
-      checked_in:
-        record.checked_in,
-
-      checked_in_at:
-        record.checked_in_at,
-
-      checked_in_by:
-        record.checked_in_by,
-
-      event_id:
-        record.event_id,
-
-      student_user_id:
-        record.student_user_id,
+      id: record.id,
+      created_at: record.created_at,
+      name: record.name,
+      email: record.email,
+      ticket_code: record.ticket_code,
+      checked_in: record.checked_in,
+      checked_in_at: record.checked_in_at,
+      checked_in_by: record.checked_in_by,
+      event_id: record.event_id,
+      student_user_id: record.student_user_id,
 
       events: {
-        id:
-          record.event_id,
-
-        title:
-          record.event_title,
-
-        category:
-          record.event_category,
-
-        event_date:
-          record.event_date,
-
-        event_time:
-          record.event_time,
-
-        location:
-          record.event_location,
-
-        status:
-          record.event_status,
+        id: record.event_id,
+        title: record.event_title,
+        category: record.event_category,
+        event_date: record.event_date,
+        event_time: record.event_time,
+        location: record.event_location,
+        status: record.event_status,
       },
     };
   }
 
-
-  function handleTicketChange(
-    event
-  ) {
+  function handleTicketChange(event) {
     setTicketCode(
-      event.target.value
-        .toUpperCase()
+      event.target.value.toUpperCase()
     );
 
     if (
@@ -284,14 +153,9 @@ function AdminCheckIn() {
     }
   }
 
-
-  async function findRegistration(
-    rawCode
-  ) {
+  async function findRegistration(rawCode) {
     const code =
-      normalizeTicketCode(
-        rawCode
-      );
+      normalizeTicketCode(rawCode);
 
     if (!code) {
       setError(
@@ -311,20 +175,15 @@ function AdminCheckIn() {
 
     const {
       data: rows,
-      error:
-        searchError,
-    } = await supabase
-      .rpc(
-        "verify_ticket",
-        {
-          p_ticket_code:
-            code,
-        }
-      );
+      error: searchError,
+    } = await supabase.rpc(
+      "verify_ticket",
+      {
+        p_ticket_code: code,
+      }
+    );
 
-    if (
-      searchError
-    ) {
+    if (searchError) {
       console.error(
         "Ticket lookup failed:",
         searchError
@@ -367,15 +226,11 @@ function AdminCheckIn() {
     }
 
     const record =
-      Array.isArray(
-        rows
-      )
+      Array.isArray(rows)
         ? rows[0]
         : rows;
 
-    if (
-      !record
-    ) {
+    if (!record) {
       setError(
         "No registration was found for this ticket code."
       );
@@ -386,36 +241,24 @@ function AdminCheckIn() {
     }
 
     const data =
-      mapTicketRecord(
-        record
-      );
+      mapTicketRecord(record);
 
     setTicketCode(
       data.ticket_code
     );
 
-    setRegistration(
-      data
-    );
-
+    setRegistration(data);
     setSearching(false);
 
     return data;
   }
 
-
-  async function handleSearch(
-    event
-  ) {
+  async function handleSearch(event) {
     event.preventDefault();
 
     await stopScanner();
-
-    await findRegistration(
-      ticketCode
-    );
+    await findRegistration(ticketCode);
   }
-
 
   async function startScanner() {
     if (
@@ -430,106 +273,76 @@ function AdminCheckIn() {
     setError("");
     setSuccess("");
 
-    scanLockedRef.current =
-      false;
+    scanLockedRef.current = false;
 
     try {
-      if (
-        !scannerRef.current
-      ) {
+      if (!scannerRef.current) {
         scannerRef.current =
           new Html5Qrcode(
             SCANNER_ID
           );
       }
 
-      await scannerRef.current
-        .start(
-          {
-            facingMode:
-              "environment",
+      await scannerRef.current.start(
+        {
+          facingMode:
+            "environment",
+        },
+        {
+          fps: 10,
+          qrbox: {
+            width: 240,
+            height: 240,
           },
-          {
-            fps:
-              10,
-            qrbox: {
-              width:
-                240,
-              height:
-                240,
-            },
-            aspectRatio:
-              1,
-          },
-          async (
-            decodedText
-          ) => {
-            if (
-              scanLockedRef
-                .current
-            ) {
-              return;
-            }
+          aspectRatio: 1,
+        },
+        async (decodedText) => {
+          if (
+            scanLockedRef.current
+          ) {
+            return;
+          }
 
-            scanLockedRef.current =
-              true;
+          scanLockedRef.current = true;
 
-            const code =
-              normalizeTicketCode(
-                decodedText
-              );
-
-            if (
-              !code.startsWith(
-                "EVT-"
-              )
-            ) {
-              setScannerError(
-                "This QR code is not an EventHub ticket."
-              );
-
-              scanLockedRef.current =
-                false;
-
-              return;
-            }
-
-            setTicketCode(
-              code
+          const code =
+            normalizeTicketCode(
+              decodedText
             );
 
-            await stopScanner();
-
-            await findRegistration(
-              code
+          if (
+            !code.startsWith(
+              "EVT-"
+            )
+          ) {
+            setScannerError(
+              "This QR code is not an EventHub ticket."
             );
-          },
-          () => {}
-        );
 
-      scanningRef.current =
-        true;
+            scanLockedRef.current = false;
 
-      setScannerActive(
-        true
+            return;
+          }
+
+          setTicketCode(code);
+
+          await stopScanner();
+          await findRegistration(code);
+        },
+        () => {}
       );
-    } catch (
-      scannerStartError
-    ) {
+
+      scanningRef.current = true;
+      setScannerActive(true);
+    } catch (scannerStartError) {
       console.error(
         "Could not start scanner:",
         scannerStartError
       );
 
-      scannerRef.current =
-        null;
-
-      scanningRef.current =
-        false;
-
-      setScannerActive(
-        false
-      );
+      scannerRef.current = null;
+      scanningRef.current = false;
+      setScannerActive(false);
 
       setScannerError(
         getCameraErrorMessage(
@@ -537,27 +350,18 @@ function AdminCheckIn() {
         )
       );
     } finally {
-      setScannerStarting(
-        false
-      );
+      setScannerStarting(false);
     }
   }
-
 
   async function stopScanner() {
     const scanner =
       scannerRef.current;
 
     if (!scanner) {
-      scanningRef.current =
-        false;
-
-      setScannerActive(
-        false
-      );
-
-      scanLockedRef.current =
-        false;
+      scanningRef.current = false;
+      scanLockedRef.current = false;
+      setScannerActive(false);
 
       return;
     }
@@ -568,9 +372,7 @@ function AdminCheckIn() {
       ) {
         await scanner.stop();
       }
-    } catch (
-      stopError
-    ) {
+    } catch (stopError) {
       console.error(
         "Could not stop scanner:",
         stopError
@@ -582,20 +384,11 @@ function AdminCheckIn() {
     } catch {
     }
 
-    scannerRef.current =
-      null;
-
-    scanningRef.current =
-      false;
-
-    scanLockedRef.current =
-      false;
-
-    setScannerActive(
-      false
-    );
+    scannerRef.current = null;
+    scanningRef.current = false;
+    scanLockedRef.current = false;
+    setScannerActive(false);
   }
-
 
   async function stopScannerSilently() {
     const scanner =
@@ -619,21 +412,13 @@ function AdminCheckIn() {
     } catch {
     }
 
-    scannerRef.current =
-      null;
-
-    scanningRef.current =
-      false;
-
-    scanLockedRef.current =
-      false;
+    scannerRef.current = null;
+    scanningRef.current = false;
+    scanLockedRef.current = false;
   }
 
-
   async function handleCheckIn() {
-    if (
-      !registration
-    ) {
+    if (!registration) {
       return;
     }
 
@@ -652,9 +437,7 @@ function AdminCheckIn() {
         `Check in ${registration.name}?`
       );
 
-    if (
-      !confirmed
-    ) {
+    if (!confirmed) {
       return;
     }
 
@@ -663,23 +446,17 @@ function AdminCheckIn() {
     setSuccess("");
 
     const {
-      data:
-        checkInResult,
-      error:
-        checkInError,
-    } = await supabase
-      .rpc(
-        "check_in_registration",
-        {
-          p_ticket_code:
-            registration
-              .ticket_code,
-        }
-      );
+      data: checkInResult,
+      error: checkInError,
+    } = await supabase.rpc(
+      "check_in_registration",
+      {
+        p_ticket_code:
+          registration.ticket_code,
+      }
+    );
 
-    if (
-      checkInError
-    ) {
+    if (checkInError) {
       console.error(
         "Check-in failed:",
         checkInError
@@ -747,8 +524,7 @@ function AdminCheckIn() {
 
     if (
       !checkInResult ||
-      checkInResult
-        .success !== true
+      checkInResult.success !== true
     ) {
       setError(
         "Could not check in this attendee."
@@ -760,23 +536,17 @@ function AdminCheckIn() {
     }
 
     const {
-      data:
-        refreshedRows,
-      error:
-        refreshError,
-    } = await supabase
-      .rpc(
-        "verify_ticket",
-        {
-          p_ticket_code:
-            registration
-              .ticket_code,
-        }
-      );
+      data: refreshedRows,
+      error: refreshError,
+    } = await supabase.rpc(
+      "verify_ticket",
+      {
+        p_ticket_code:
+          registration.ticket_code,
+      }
+    );
 
-    if (
-      refreshError
-    ) {
+    if (refreshError) {
       console.error(
         "Could not refresh registration:",
         refreshError
@@ -785,14 +555,11 @@ function AdminCheckIn() {
       setRegistration(
         (current) => ({
           ...current,
-          checked_in:
-            true,
+          checked_in: true,
           checked_in_at:
-            checkInResult
-              .checked_in_at,
+            checkInResult.checked_in_at,
           checked_in_by:
-            checkInResult
-              .checked_in_by,
+            checkInResult.checked_in_by,
         })
       );
     } else {
@@ -803,9 +570,7 @@ function AdminCheckIn() {
           ? refreshedRows[0]
           : refreshedRows;
 
-      if (
-        refreshedRecord
-      ) {
+      if (refreshedRecord) {
         setRegistration(
           mapTicketRecord(
             refreshedRecord
@@ -815,14 +580,11 @@ function AdminCheckIn() {
         setRegistration(
           (current) => ({
             ...current,
-            checked_in:
-              true,
+            checked_in: true,
             checked_in_at:
-              checkInResult
-                .checked_in_at,
+              checkInResult.checked_in_at,
             checked_in_by:
-              checkInResult
-                .checked_in_by,
+              checkInResult.checked_in_by,
           })
         );
       }
@@ -837,7 +599,6 @@ function AdminCheckIn() {
     setCheckingIn(false);
   }
 
-
   async function handleNewScan() {
     await stopScanner();
 
@@ -848,18 +609,13 @@ function AdminCheckIn() {
     setScannerError("");
   }
 
-
   const eventData =
     registration?.events;
 
-
   return (
     <AdminLayout>
-
       <div className="admin-page-heading">
-
         <div>
-
           <span className="admin-eyebrow">
             Attendance
           </span>
@@ -873,12 +629,9 @@ function AdminCheckIn() {
             enter ticket codes manually
             to verify attendees.
           </p>
-
         </div>
 
-
         <div className="admin-page-count">
-
           <strong>
             {recentCheckIns.length}
           </strong>
@@ -886,20 +639,13 @@ function AdminCheckIn() {
           <span>
             Recent check-ins
           </span>
-
         </div>
-
       </div>
 
-
       <div className="admin-checkin-layout">
-
         <section className="admin-editor-card">
-
           <div className="admin-editor-header">
-
             <div>
-
               <span>
                 Ticket scanner
               </span>
@@ -907,18 +653,12 @@ function AdminCheckIn() {
               <h2>
                 Verify ticket
               </h2>
-
             </div>
-
           </div>
 
-
           <div className="admin-checkin-scanner">
-
             <div className="admin-checkin-scanner-header">
-
               <div>
-
                 <span>
                   Camera scanner
                 </span>
@@ -926,9 +666,7 @@ function AdminCheckIn() {
                 <strong>
                   Scan QR ticket
                 </strong>
-
               </div>
-
 
               <span
                 className={
@@ -941,9 +679,7 @@ function AdminCheckIn() {
                   ? "Camera active"
                   : "Camera off"}
               </span>
-
             </div>
-
 
             <div
               className={
@@ -953,18 +689,11 @@ function AdminCheckIn() {
                   : "admin-checkin-reader"
               }
             >
-
-              <div
-                id={
-                  SCANNER_ID
-                }
-              />
-
+              <div id={SCANNER_ID} />
 
               {!scannerActive &&
                 !scannerStarting && (
                   <div className="admin-checkin-reader-placeholder">
-
                     <span>
                       ◇
                     </span>
@@ -979,29 +708,22 @@ function AdminCheckIn() {
                       on the attendee&apos;s
                       ticket.
                     </p>
-
                   </div>
                 )}
 
-
               {scannerStarting && (
                 <div className="admin-checkin-reader-loading">
-
                   <div className="loading-spinner" />
 
                   <span>
                     Starting camera...
                   </span>
-
                 </div>
               )}
-
             </div>
-
 
             {scannerError && (
               <div className="admin-checkin-scanner-error">
-
                 <span>
                   !
                 </span>
@@ -1009,20 +731,15 @@ function AdminCheckIn() {
                 <p>
                   {scannerError}
                 </p>
-
               </div>
             )}
 
-
             <div className="admin-checkin-scanner-actions">
-
               {!scannerActive ? (
                 <button
                   type="button"
                   className="btn btn-primary"
-                  onClick={
-                    startScanner
-                  }
+                  onClick={startScanner}
                   disabled={
                     scannerStarting ||
                     searching ||
@@ -1037,40 +754,26 @@ function AdminCheckIn() {
                 <button
                   type="button"
                   className="btn btn-outline"
-                  onClick={
-                    stopScanner
-                  }
-                  disabled={
-                    checkingIn
-                  }
+                  onClick={stopScanner}
+                  disabled={checkingIn}
                 >
                   Stop camera
                 </button>
               )}
-
             </div>
-
           </div>
 
-
           <div className="admin-checkin-manual-divider">
-
             <span>
               or enter manually
             </span>
-
           </div>
-
 
           <form
             className="admin-checkin-form"
-            onSubmit={
-              handleSearch
-            }
+            onSubmit={handleSearch}
           >
-
             <div className="admin-field">
-
               <label htmlFor="checkin-ticket">
                 Ticket code
               </label>
@@ -1078,12 +781,8 @@ function AdminCheckIn() {
               <input
                 id="checkin-ticket"
                 type="text"
-                value={
-                  ticketCode
-                }
-                onChange={
-                  handleTicketChange
-                }
+                value={ticketCode}
+                onChange={handleTicketChange}
                 placeholder="EVT-ABC123-XY9Z"
                 autoComplete="off"
                 disabled={
@@ -1091,9 +790,7 @@ function AdminCheckIn() {
                   checkingIn
                 }
               />
-
             </div>
-
 
             <button
               type="submit"
@@ -1104,7 +801,6 @@ function AdminCheckIn() {
                 !ticketCode.trim()
               }
             >
-
               {searching
                 ? "Checking..."
                 : "Check ticket"}
@@ -1114,14 +810,10 @@ function AdminCheckIn() {
                   →
                 </span>
               )}
-
             </button>
-
           </form>
 
-
           <div className="admin-checkin-help">
-
             <span>
               Ticket format
             </span>
@@ -1135,19 +827,14 @@ function AdminCheckIn() {
               ticket ID shown on the digital
               ticket.
             </p>
-
           </div>
-
         </section>
 
-
         <section className="admin-checkin-result">
-
           {!registration &&
             !error &&
             !success && (
               <div className="admin-checkin-empty">
-
                 <div className="admin-checkin-empty-icon">
                   ◇
                 </div>
@@ -1165,20 +852,16 @@ function AdminCheckIn() {
                   its code to view attendee
                   and event information.
                 </p>
-
               </div>
             )}
 
-
           {error && (
             <div className="admin-checkin-error">
-
               <div className="admin-checkin-result-icon">
                 !
               </div>
 
               <div>
-
                 <span>
                   Verification
                 </span>
@@ -1190,22 +873,17 @@ function AdminCheckIn() {
                 <p>
                   {error}
                 </p>
-
               </div>
-
             </div>
           )}
 
-
           {success && (
             <div className="admin-checkin-success">
-
               <div className="admin-checkin-result-icon">
                 ✓
               </div>
 
               <div>
-
                 <span>
                   Attendance recorded
                 </span>
@@ -1217,20 +895,14 @@ function AdminCheckIn() {
                 <p>
                   {success}
                 </p>
-
               </div>
-
             </div>
           )}
 
-
           {registration && (
             <article className="admin-checkin-ticket">
-
               <div className="admin-checkin-ticket-top">
-
                 <div>
-
                   <span>
                     Ticket verification
                   </span>
@@ -1238,9 +910,7 @@ function AdminCheckIn() {
                   <h2>
                     {registration.name}
                   </h2>
-
                 </div>
-
 
                 <span
                   className={
@@ -1249,18 +919,13 @@ function AdminCheckIn() {
                       : "admin-checkin-status valid"
                   }
                 >
-
                   {registration.checked_in
                     ? "Checked in"
                     : "Valid ticket"}
-
                 </span>
-
               </div>
 
-
               <div className="admin-checkin-ticket-grid">
-
                 <div>
                   <span>Event</span>
 
@@ -1269,7 +934,6 @@ function AdminCheckIn() {
                       "Unknown event"}
                   </strong>
                 </div>
-
 
                 <div>
                   <span>Category</span>
@@ -1280,7 +944,6 @@ function AdminCheckIn() {
                   </strong>
                 </div>
 
-
                 <div>
                   <span>Attendee</span>
 
@@ -1288,7 +951,6 @@ function AdminCheckIn() {
                     {registration.name}
                   </strong>
                 </div>
-
 
                 <div>
                   <span>Email</span>
@@ -1298,30 +960,25 @@ function AdminCheckIn() {
                   </strong>
                 </div>
 
-
                 <div>
                   <span>Date</span>
 
                   <strong>
                     {formatEventDate(
-                      eventData
-                        ?.event_date
+                      eventData?.event_date
                     )}
                   </strong>
                 </div>
-
 
                 <div>
                   <span>Time</span>
 
                   <strong>
                     {formatEventTime(
-                      eventData
-                        ?.event_time
+                      eventData?.event_time
                     )}
                   </strong>
                 </div>
-
 
                 <div>
                   <span>Venue</span>
@@ -1332,24 +989,17 @@ function AdminCheckIn() {
                   </strong>
                 </div>
 
-
                 <div>
                   <span>Ticket ID</span>
 
                   <strong className="admin-checkin-code">
-                    {
-                      registration
-                        .ticket_code
-                    }
+                    {registration.ticket_code}
                   </strong>
                 </div>
-
               </div>
-
 
               {registration.checked_in && (
                 <div className="admin-checkin-history">
-
                   <span>
                     Checked in
                   </span>
@@ -1358,25 +1008,17 @@ function AdminCheckIn() {
                     {checkedInTime ||
                       "Recorded"}
                   </strong>
-
                 </div>
               )}
 
-
               <div className="admin-checkin-actions">
-
                 {!registration.checked_in && (
                   <button
                     type="button"
                     className="btn btn-primary admin-checkin-confirm"
-                    onClick={
-                      handleCheckIn
-                    }
-                    disabled={
-                      checkingIn
-                    }
+                    onClick={handleCheckIn}
+                    disabled={checkingIn}
                   >
-
                     {checkingIn
                       ? "Checking in..."
                       : "Confirm check-in"}
@@ -1386,40 +1028,26 @@ function AdminCheckIn() {
                         ✓
                       </span>
                     )}
-
                   </button>
                 )}
-
 
                 <button
                   type="button"
                   className="btn btn-outline"
-                  onClick={
-                    handleNewScan
-                  }
-                  disabled={
-                    checkingIn
-                  }
+                  onClick={handleNewScan}
+                  disabled={checkingIn}
                 >
                   Check another ticket
                 </button>
-
               </div>
-
             </article>
           )}
-
         </section>
-
       </div>
 
-
       <section className="admin-recent-checkins">
-
         <div className="admin-recent-checkins-header">
-
           <div>
-
             <span className="admin-eyebrow">
               Gate Activity
             </span>
@@ -1433,31 +1061,22 @@ function AdminCheckIn() {
               from events you are authorized
               to operate.
             </p>
-
           </div>
-
 
           <button
             type="button"
             className="btn btn-outline"
-            onClick={
-              fetchRecentCheckIns
-            }
-            disabled={
-              recentLoading
-            }
+            onClick={fetchRecentCheckIns}
+            disabled={recentLoading}
           >
             {recentLoading
               ? "Refreshing..."
               : "Refresh"}
           </button>
-
         </div>
-
 
         {recentError && (
           <div className="admin-inline-error">
-
             <span>
               !
             </span>
@@ -1465,25 +1084,19 @@ function AdminCheckIn() {
             <p>
               {recentError}
             </p>
-
           </div>
         )}
 
-
         {recentLoading ? (
           <div className="admin-recent-checkins-loading">
-
             <div className="loading-spinner" />
 
             <span>
               Loading recent activity...
             </span>
-
           </div>
-        ) : recentCheckIns.length ===
-          0 ? (
+        ) : recentCheckIns.length === 0 ? (
           <div className="admin-recent-checkins-empty">
-
             <span>
               ◇
             </span>
@@ -1496,31 +1109,21 @@ function AdminCheckIn() {
               Successful attendee check-ins
               will appear here.
             </p>
-
           </div>
         ) : (
           <div className="admin-recent-checkins-list">
-
             {recentCheckIns.map(
-              (
-                item
-              ) => (
+              (item) => (
                 <article
-                  key={
-                    item.registration_id
-                  }
+                  key={item.registration_id}
                   className="admin-recent-checkin-row"
                 >
-
                   <div className="admin-recent-checkin-icon">
                     ✓
                   </div>
 
-
                   <div className="admin-recent-checkin-main">
-
                     <div className="admin-recent-checkin-heading">
-
                       <strong>
                         {item.attendee_name}
                       </strong>
@@ -1530,18 +1133,14 @@ function AdminCheckIn() {
                           item.checked_in_at
                         )}
                       </span>
-
                     </div>
-
 
                     <p>
                       {item.event_title ||
                         "Unknown event"}
                     </p>
 
-
                     <div className="admin-recent-checkin-meta">
-
                       <span>
                         {item.event_location ||
                           "Venue TBA"}
@@ -1550,33 +1149,23 @@ function AdminCheckIn() {
                       <span>
                         {item.ticket_code}
                       </span>
-
                     </div>
-
                   </div>
-
 
                   <span className="admin-recent-checkin-status">
                     Checked in
                   </span>
-
                 </article>
               )
             )}
-
           </div>
         )}
-
       </section>
-
     </AdminLayout>
   );
 }
 
-
-function getCameraErrorMessage(
-  error
-) {
+function getCameraErrorMessage(error) {
   const message =
     String(
       error?.message ||
@@ -1585,34 +1174,22 @@ function getCameraErrorMessage(
     ).toLowerCase();
 
   if (
-    message.includes(
-      "permission"
-    ) ||
-    message.includes(
-      "notallowed"
-    )
+    message.includes("permission") ||
+    message.includes("notallowed")
   ) {
     return "Camera permission was denied. Allow camera access in your browser and try again.";
   }
 
   if (
-    message.includes(
-      "notfound"
-    ) ||
-    message.includes(
-      "no camera"
-    )
+    message.includes("notfound") ||
+    message.includes("no camera")
   ) {
     return "No compatible camera was found on this device.";
   }
 
   if (
-    message.includes(
-      "secure"
-    ) ||
-    message.includes(
-      "https"
-    )
+    message.includes("secure") ||
+    message.includes("https")
   ) {
     return "Camera scanning requires a secure HTTPS connection or localhost.";
   }
@@ -1620,10 +1197,7 @@ function getCameraErrorMessage(
   return "Could not start the camera. Check camera permissions and try again.";
 }
 
-
-function formatEventDate(
-  date
-) {
+function formatEventDate(date) {
   if (!date) {
     return "Date TBA";
   }
@@ -1644,43 +1218,29 @@ function formatEventDate(
   return eventDate.toLocaleDateString(
     "en-US",
     {
-      year:
-        "numeric",
-      month:
-        "short",
-      day:
-        "numeric",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     }
   );
 }
 
-
-function formatEventTime(
-  time
-) {
+function formatEventTime(time) {
   if (!time) {
     return "Time TBA";
   }
 
   const match =
-    String(
-      time
-    ).match(
+    String(time).match(
       /^(\d{2}):(\d{2})/
     );
 
-  if (
-    !match
-  ) {
-    return String(
-      time
-    );
+  if (!match) {
+    return String(time);
   }
 
   let hours =
-    Number(
-      match[1]
-    );
+    Number(match[1]);
 
   const minutes =
     match[2];
@@ -1697,18 +1257,13 @@ function formatEventTime(
   return `${hours}:${minutes} ${modifier}`;
 }
 
-
-function formatCheckInTime(
-  value
-) {
+function formatCheckInTime(value) {
   if (!value) {
     return "Just now";
   }
 
   const date =
-    new Date(
-      value
-    );
+    new Date(value);
 
   if (
     Number.isNaN(
@@ -1721,17 +1276,12 @@ function formatCheckInTime(
   return date.toLocaleString(
     "en-US",
     {
-      month:
-        "short",
-      day:
-        "numeric",
-      hour:
-        "numeric",
-      minute:
-        "2-digit",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
     }
   );
 }
-
 
 export default AdminCheckIn;

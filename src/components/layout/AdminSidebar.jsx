@@ -11,7 +11,6 @@ import {
   ROLE_LABELS,
 } from "../../utils/permissions";
 
-
 function AdminSidebar() {
   const navigate = useNavigate();
 
@@ -21,17 +20,14 @@ function AdminSidebar() {
     signOut,
   } = useAuth();
 
-
   async function handleLogout() {
     await signOut();
     navigate("/admin/login");
   }
 
-
   const overrides =
     profile?.permission_overrides ||
     {};
-
 
   const links = [
     {
@@ -69,6 +65,16 @@ function AdminSidebar() {
       visible: canUser(
         role,
         "manageAnnouncements",
+        overrides
+      ),
+    },
+    {
+      to: "/admin/media",
+      label: "Media & Highlights",
+      icon: "◈",
+      visible: canUser(
+        role,
+        "manageMedia",
         overrides
       ),
     },
@@ -124,12 +130,10 @@ function AdminSidebar() {
     },
   ];
 
-
   const visibleLinks =
     links.filter(
       (item) => item.visible
     );
-
 
   return (
     <aside className="admin-sidebar-new">
@@ -155,7 +159,6 @@ function AdminSidebar() {
             </span>
           </div>
         </Link>
-
 
         <div className="admin-sidebar-user">
 
@@ -186,13 +189,11 @@ function AdminSidebar() {
 
         </div>
 
-
         <div className="admin-sidebar-section-label">
           {role === "event_staff"
             ? "Event Operations"
             : "Management"}
         </div>
-
 
         <nav className="admin-navigation">
 
@@ -230,7 +231,6 @@ function AdminSidebar() {
 
       </div>
 
-
       <div className="admin-sidebar-bottom">
 
         <Link
@@ -243,7 +243,6 @@ function AdminSidebar() {
 
           View public site
         </Link>
-
 
         <button
           type="button"
@@ -262,6 +261,5 @@ function AdminSidebar() {
     </aside>
   );
 }
-
 
 export default AdminSidebar;

@@ -10,34 +10,23 @@ import { useAuth } from "./AuthContext";
 
 const StudentAuthContext = createContext(null);
 
-export function StudentAuthProvider({
-  children,
-}) {
+export function StudentAuthProvider({ children }) {
   const {
     user,
     session,
     loading: authLoading,
   } = useAuth();
 
-  const [profile, setProfile] =
-    useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const [loading, setLoading] =
-    useState(true);
-
-  async function loadStudentProfile(
-    userId
-  ) {
+  async function loadStudentProfile(userId) {
     if (!userId) {
       setProfile(null);
-
       return null;
     }
 
-    const {
-      data,
-      error,
-    } = await supabase
+    const { data, error } = await supabase
       .from("student_profiles")
       .select(`
         id,
@@ -58,14 +47,10 @@ export function StudentAuthProvider({
       );
 
       setProfile(null);
-
       return null;
     }
 
-    setProfile(
-      data ?? null
-    );
-
+    setProfile(data ?? null);
     return data ?? null;
   }
 
@@ -88,9 +73,7 @@ export function StudentAuthProvider({
 
       setLoading(true);
 
-      await loadStudentProfile(
-        user.id
-      );
+      await loadStudentProfile(user.id);
 
       if (active) {
         setLoading(false);
@@ -107,25 +90,17 @@ export function StudentAuthProvider({
     authLoading,
   ]);
 
-  async function signIn(
-    email,
-    password
-  ) {
+  async function signIn(email, password) {
     setLoading(true);
 
-    const {
-      data,
-      error,
-    } =
-      await supabase.auth
-        .signInWithPassword({
-          email:
-            email
-              .trim()
-              .toLowerCase(),
-
-          password,
-        });
+    const { data, error } =
+      await supabase.auth.signInWithPassword({
+        email:
+          email
+            .trim()
+            .toLowerCase(),
+        password,
+      });
 
     if (error) {
       setLoading(false);
@@ -151,7 +126,6 @@ export function StudentAuthProvider({
 
       return {
         data: null,
-
         error: new Error(
           "This account is not registered as a student."
         ),
@@ -177,28 +151,18 @@ export function StudentAuthProvider({
     setLoading(true);
 
     try {
-      const {
-        data,
-        error,
-      } =
+      const { data, error } =
         await supabase.auth.signUp({
           email:
             email
               .trim()
               .toLowerCase(),
-
           password,
-
           options: {
             data: {
-              account_type:
-                "student",
-
-              full_name:
-                fullName.trim(),
-
-              student_id:
-                studentId.trim(),
+              account_type: "student",
+              full_name: fullName.trim(),
+              student_id: studentId.trim(),
             },
           },
         });
@@ -213,7 +177,6 @@ export function StudentAuthProvider({
       if (!data.user) {
         return {
           data: null,
-
           error: new Error(
             "Student account could not be created."
           ),
@@ -223,36 +186,25 @@ export function StudentAuthProvider({
       if (!data.session) {
         return {
           data,
-
           error: null,
-
-          requiresEmailConfirmation:
-            true,
+          requiresEmailConfirmation: true,
         };
       }
 
-      const {
-        error: profileError,
-      } = await supabase
-        .from("student_profiles")
-        .insert({
-          id:
-            data.user.id,
-
-          full_name:
-            fullName.trim(),
-
-          student_id:
-            studentId.trim(),
-
-          grade:
-            grade?.trim() ||
-            null,
-
-          class_name:
-            className?.trim() ||
-            null,
-        });
+      const { error: profileError } =
+        await supabase
+          .from("student_profiles")
+          .insert({
+            id: data.user.id,
+            full_name: fullName.trim(),
+            student_id: studentId.trim(),
+            grade:
+              grade?.trim() ||
+              null,
+            class_name:
+              className?.trim() ||
+              null,
+          });
 
       if (profileError) {
         console.error(
@@ -279,9 +231,7 @@ export function StudentAuthProvider({
       return {
         data,
         error: null,
-
-        requiresEmailConfirmation:
-          false,
+        requiresEmailConfirmation: false,
       };
     } catch (error) {
       console.error(
@@ -314,33 +264,25 @@ export function StudentAuthProvider({
   async function refreshProfile() {
     if (!user) {
       setProfile(null);
-
       return null;
     }
 
-    return loadStudentProfile(
-      user.id
-    );
+    return loadStudentProfile(user.id);
   }
 
-  const isStudent =
-    Boolean(
-      session &&
-      user &&
-      profile
-    );
+  const isStudent = Boolean(
+    session &&
+    user &&
+    profile
+  );
 
   const value = {
     student: user,
-
     profile,
-
     isStudent,
-
     loading:
       authLoading ||
       loading,
-
     signIn,
     signUp,
     signOut,
@@ -348,9 +290,7 @@ export function StudentAuthProvider({
   };
 
   return (
-    <StudentAuthContext.Provider
-      value={value}
-    >
+    <StudentAuthContext.Provider value={value}>
       {children}
     </StudentAuthContext.Provider>
   );

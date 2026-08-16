@@ -1,9 +1,7 @@
 import { Navigate } from "react-router-dom";
 
 import { useAuth } from "../../contexts/AuthContext";
-
 import { canUser } from "../../utils/permissions";
-
 
 function PermissionRoute({
   roles = [],
@@ -17,11 +15,9 @@ function PermissionRoute({
     loading,
   } = useAuth();
 
-
   if (loading) {
     return (
       <div className="admin-auth-loading">
-
         <div className="admin-auth-loading-mark">
           <span />
           <span />
@@ -32,11 +28,9 @@ function PermissionRoute({
         <strong>
           Checking permissions...
         </strong>
-
       </div>
     );
   }
-
 
   if (!isCMSUser) {
     return (
@@ -47,7 +41,6 @@ function PermissionRoute({
     );
   }
 
-
   if (!profile?.is_active) {
     return (
       <Navigate
@@ -57,16 +50,13 @@ function PermissionRoute({
     );
   }
 
-
   const overrides =
     profile?.permission_overrides ||
     {};
 
-
   const hasRoleAccess =
     roles.length === 0 ||
     roles.includes(role);
-
 
   const hasPermissionAccess =
     !permission ||
@@ -76,21 +66,19 @@ function PermissionRoute({
       overrides
     );
 
-
   if (
     !hasRoleAccess ||
     !hasPermissionAccess
   ) {
     const fallbackRoute =
+      role === "event_staff" &&
       canUser(
         role,
         "checkInAttendees",
         overrides
-      ) &&
-      role === "event_staff"
+      )
         ? "/admin/check-in"
         : "/admin";
-
 
     return (
       <Navigate
@@ -100,9 +88,7 @@ function PermissionRoute({
     );
   }
 
-
   return children;
 }
-
 
 export default PermissionRoute;

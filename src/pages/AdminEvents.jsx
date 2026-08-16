@@ -12,7 +12,6 @@ import AdminLayout from "../components/layout/AdminLayout";
 import LoadingState from "../components/common/LoadingState";
 import EmptyState from "../components/common/EmptyState";
 
-
 const emptyForm = {
   title: "",
   category: "",
@@ -24,7 +23,6 @@ const emptyForm = {
   capacity: "",
   registration_enabled: true,
 };
-
 
 const STATUS_LABELS = {
   draft: "Draft",
@@ -38,7 +36,6 @@ const STATUS_LABELS = {
   completed: "Completed",
 };
 
-
 const EVENT_STATUS_LABELS = {
   upcoming: "Upcoming",
   registration_open: "Registration Open",
@@ -49,7 +46,6 @@ const EVENT_STATUS_LABELS = {
   cancelled: "Cancelled",
 };
 
-
 function AdminEvents() {
   const {
     user,
@@ -57,76 +53,20 @@ function AdminEvents() {
     role,
   } = useAuth();
 
-  const [
-    events,
-    setEvents,
-  ] = useState([]);
-
-  const [
-    formData,
-    setFormData,
-  ] = useState(emptyForm);
-
-  const [
-    editingId,
-    setEditingId,
-  ] = useState(null);
-
-  const [
-    loading,
-    setLoading,
-  ] = useState(true);
-
-  const [
-    saving,
-    setSaving,
-  ] = useState(false);
-
-  const [
-    actionLoadingId,
-    setActionLoadingId,
-  ] = useState(null);
-
-  const [
-    error,
-    setError,
-  ] = useState("");
-
-  const [
-    success,
-    setSuccess,
-  ] = useState("");
-
-  const [
-    search,
-    setSearch,
-  ] = useState("");
-
-  const [
-    eventStaff,
-    setEventStaff,
-  ] = useState([]);
-
-  const [
-    staffAssignments,
-    setStaffAssignments,
-  ] = useState([]);
-
-  const [
-    staffEvent,
-    setStaffEvent,
-  ] = useState(null);
-
-  const [
-    staffLoading,
-    setStaffLoading,
-  ] = useState(false);
-
-  const [
-    staffSavingId,
-    setStaffSavingId,
-  ] = useState(null);
-
+  const [events, setEvents] = useState([]);
+  const [formData, setFormData] = useState(emptyForm);
+  const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [actionLoadingId, setActionLoadingId] = useState(null);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [search, setSearch] = useState("");
+  const [eventStaff, setEventStaff] = useState([]);
+  const [staffAssignments, setStaffAssignments] = useState([]);
+  const [staffEvent, setStaffEvent] = useState(null);
+  const [staffLoading, setStaffLoading] = useState(false);
+  const [staffSavingId, setStaffSavingId] = useState(null);
 
   async function fetchEvents() {
     setLoading(true);
@@ -138,12 +78,9 @@ function AdminEvents() {
     } = await supabase
       .from("events")
       .select("*")
-      .order(
-        "event_date",
-        {
-          ascending: true,
-        }
-      );
+      .order("event_date", {
+        ascending: true,
+      });
 
     if (fetchError) {
       console.error(
@@ -151,26 +88,17 @@ function AdminEvents() {
         fetchError
       );
 
-      setError(
-        "Could not load events."
-      );
-
+      setError("Could not load events.");
       setEvents([]);
     } else {
-      setEvents(
-        data || []
-      );
+      setEvents(data || []);
     }
 
     setLoading(false);
   }
 
-
   async function fetchEventStaff() {
-    if (
-      role !==
-      "principal"
-    ) {
+    if (role !== "principal") {
       setEventStaff([]);
       return;
     }
@@ -190,20 +118,11 @@ function AdminEvents() {
         title,
         is_active
       `)
-      .eq(
-        "role",
-        "event_staff"
-      )
-      .eq(
-        "is_active",
-        true
-      )
-      .order(
-        "full_name",
-        {
-          ascending: true,
-        }
-      );
+      .eq("role", "event_staff")
+      .eq("is_active", true)
+      .order("full_name", {
+        ascending: true,
+      });
 
     if (staffError) {
       console.error(
@@ -213,23 +132,15 @@ function AdminEvents() {
 
       setEventStaff([]);
       setStaffLoading(false);
-
       return;
     }
 
-    setEventStaff(
-      data || []
-    );
-
+    setEventStaff(data || []);
     setStaffLoading(false);
   }
 
-
   async function fetchStaffAssignments() {
-    if (
-      role !==
-      "principal"
-    ) {
+    if (role !== "principal") {
       setStaffAssignments([]);
       return;
     }
@@ -238,9 +149,7 @@ function AdminEvents() {
       data,
       error: assignmentError,
     } = await supabase
-      .from(
-        "event_staff_assignments"
-      )
+      .from("event_staff_assignments")
       .select(`
         id,
         event_id,
@@ -256,15 +165,11 @@ function AdminEvents() {
       );
 
       setStaffAssignments([]);
-
       return;
     }
 
-    setStaffAssignments(
-      data || []
-    );
+    setStaffAssignments(data || []);
   }
-
 
   useEffect(() => {
     async function loadPage() {
@@ -276,59 +181,36 @@ function AdminEvents() {
     }
 
     loadPage();
-  }, [
-    role,
-  ]);
+  }, [role]);
 
-
-  function handleChange(
-    event
-  ) {
+  function handleChange(event) {
     const {
       name,
       value,
     } = event.target;
 
-    setFormData(
-      (current) => ({
-        ...current,
-        [name]: value,
-      })
-    );
+    setFormData((current) => ({
+      ...current,
+      [name]: value,
+    }));
 
-    if (error) {
-      setError("");
-    }
-
-    if (success) {
-      setSuccess("");
-    }
+    setError("");
+    setSuccess("");
   }
 
-
-  async function handleSubmit(
-    event
-  ) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
-    if (
-      !user?.id
-    ) {
+    if (!user?.id) {
       setError(
         "Your account could not be identified."
       );
-
       return;
     }
 
-    const title =
-      formData.title.trim();
-
-    const category =
-      formData.category.trim();
-
-    const location =
-      formData.location.trim();
+    const title = formData.title.trim();
+    const category = formData.category.trim();
+    const location = formData.location.trim();
 
     if (
       !title ||
@@ -340,30 +222,24 @@ function AdminEvents() {
       setError(
         "Complete all required event fields."
       );
-
       return;
     }
 
     const capacity =
       formData.capacity === ""
         ? null
-        : Number(
-            formData.capacity
-          );
+        : Number(formData.capacity);
 
     if (
       capacity !== null &&
       (
-        !Number.isFinite(
-          capacity
-        ) ||
+        !Number.isFinite(capacity) ||
         capacity < 1
       )
     ) {
       setError(
         "Capacity must be at least 1."
       );
-
       return;
     }
 
@@ -374,70 +250,40 @@ function AdminEvents() {
     const payload = {
       title,
       category,
-
-      event_date:
-        formData.event_date,
-
-      event_time:
-        formData.event_time,
-
+      event_date: formData.event_date,
+      event_time: formData.event_time,
       location,
-
-      description:
-        formData
-          .description
-          .trim(),
-
-      status:
-        formData.status,
-
+      description: formData.description.trim(),
+      status: formData.status,
       capacity,
-
       registration_enabled:
-        formData
-          .registration_enabled,
+        formData.registration_enabled,
     };
 
     let result;
 
     if (editingId) {
-      result =
-        await supabase
-          .from("events")
-          .update(
-            payload
-          )
-          .eq(
-            "id",
-            editingId
-          )
-          .select()
-          .single();
+      result = await supabase
+        .from("events")
+        .update(payload)
+        .eq("id", editingId)
+        .select()
+        .single();
     } else {
-      result =
-        await supabase
-          .from("events")
-          .insert({
-            ...payload,
-
-            created_by:
-              user.id,
-
-            society_id:
-              profile
-                ?.society_id ||
-              null,
-
-            approval_status:
-              "draft",
-          })
-          .select()
-          .single();
+      result = await supabase
+        .from("events")
+        .insert({
+          ...payload,
+          created_by: user.id,
+          society_id:
+            profile?.society_id || null,
+          approval_status: "draft",
+        })
+        .select()
+        .single();
     }
 
-    if (
-      result.error
-    ) {
+    if (result.error) {
       console.error(
         "Could not save event:",
         result.error
@@ -450,12 +296,10 @@ function AdminEvents() {
       );
 
       setSaving(false);
-
       return;
     }
 
-    const savedEvent =
-      result.data;
+    const savedEvent = result.data;
 
     await logActivity({
       action:
@@ -463,36 +307,20 @@ function AdminEvents() {
           ? "updated_event"
           : "created_event",
 
-      entityType:
-        "event",
+      entityType: "event",
 
-      entityId:
-        String(
-          savedEvent.id
-        ),
+      entityId: String(savedEvent.id),
 
       details: {
-        title:
-          savedEvent.title,
-
-        category:
-          savedEvent.category,
-
+        title: savedEvent.title,
+        category: savedEvent.category,
         approval_status:
-          savedEvent
-            .approval_status ||
-          "draft",
-
+          savedEvent.approval_status || "draft",
         event_status:
-          savedEvent.status ||
-          "upcoming",
-
-        capacity:
-          savedEvent.capacity,
-
+          savedEvent.status || "upcoming",
+        capacity: savedEvent.capacity,
         registration_enabled:
-          savedEvent
-            .registration_enabled,
+          savedEvent.registration_enabled,
       },
     });
 
@@ -506,75 +334,36 @@ function AdminEvents() {
       ...emptyForm,
     });
 
-    setEditingId(
-      null
-    );
-
-    setSaving(
-      false
-    );
+    setEditingId(null);
+    setSaving(false);
 
     await fetchEvents();
   }
 
-
-  function handleEdit(
-    event
-  ) {
-    if (
-      !canEditEvent(
-        event
-      )
-    ) {
+  function handleEdit(event) {
+    if (!canEditEvent(event)) {
       setError(
         "You do not have permission to edit this event."
       );
-
       return;
     }
 
-    setEditingId(
-      event.id
-    );
+    setEditingId(event.id);
 
     setFormData({
-      title:
-        event.title ||
-        "",
-
-      category:
-        event.category ||
-        "",
-
-      event_date:
-        event.event_date ||
-        "",
-
+      title: event.title || "",
+      category: event.category || "",
+      event_date: event.event_date || "",
       event_time:
         normalizeTimeForInput(
           event.event_time
         ),
-
-      location:
-        event.location ||
-        "",
-
-      description:
-        event.description ||
-        "",
-
-      status:
-        event.status ||
-        "upcoming",
-
-      capacity:
-        event.capacity ??
-        "",
-
+      location: event.location || "",
+      description: event.description || "",
+      status: event.status || "upcoming",
+      capacity: event.capacity ?? "",
       registration_enabled:
-        event
-          .registration_enabled ??
-        true,
+        event.registration_enabled ?? true,
     });
 
     setError("");
@@ -582,16 +371,12 @@ function AdminEvents() {
 
     window.scrollTo({
       top: 0,
-      behavior:
-        "smooth",
+      behavior: "smooth",
     });
   }
 
-
   function cancelEdit() {
-    setEditingId(
-      null
-    );
+    setEditingId(null);
 
     setFormData({
       ...emptyForm,
@@ -600,68 +385,42 @@ function AdminEvents() {
     setError("");
   }
 
-
-  function canEditEvent(
-    event
-  ) {
+  function canEditEvent(event) {
     if (
-      role ===
-        "principal" ||
-      role ===
-        "vice_principal"
+      role === "principal" ||
+      role === "vice_principal"
     ) {
       return true;
     }
 
-    if (
-      role ===
-      "teacher"
-    ) {
+    if (role === "teacher") {
       return Boolean(
-        profile
-          ?.society_id &&
-        event
-          .society_id ===
-          profile
-            .society_id
+        profile?.society_id &&
+        event.society_id ===
+          profile.society_id
       );
     }
 
-    if (
-      role ===
-      "student_admin"
-    ) {
+    if (role === "student_admin") {
       const ownsEvent =
-        event.created_by ===
-        user?.id;
+        event.created_by === user?.id;
 
-      const editableStatus =
-        [
-          "draft",
-          "changes_requested",
-        ].includes(
-          event
-            .approval_status ||
-          "draft"
-        );
-
-      return (
-        ownsEvent &&
-        editableStatus
+      const editableStatus = [
+        "draft",
+        "changes_requested",
+      ].includes(
+        event.approval_status || "draft"
       );
+
+      return ownsEvent && editableStatus;
     }
 
     return false;
   }
 
-
   function canDeleteEvent() {
-    return (
-      role ===
-      "principal"
-    );
+    return role === "principal";
   }
-
 
   async function recordApproval(
     eventId,
@@ -671,18 +430,11 @@ function AdminEvents() {
     const {
       error: approvalError,
     } = await supabase
-      .from(
-        "event_approvals"
-      )
+      .from("event_approvals")
       .insert({
-        event_id:
-          eventId,
-
-        user_id:
-          user.id,
-
+        event_id: eventId,
+        user_id: user.id,
         action,
-
         comment,
       });
 
@@ -694,7 +446,6 @@ function AdminEvents() {
     }
   }
 
-
   async function changeEventStatus({
     eventId,
     status,
@@ -702,10 +453,7 @@ function AdminEvents() {
     comment,
     extraData = {},
   }) {
-    setActionLoadingId(
-      eventId
-    );
-
+    setActionLoadingId(eventId);
     setError("");
     setSuccess("");
 
@@ -714,15 +462,10 @@ function AdminEvents() {
     } = await supabase
       .from("events")
       .update({
-        approval_status:
-          status,
-
+        approval_status: status,
         ...extraData,
       })
-      .eq(
-        "id",
-        eventId
-      );
+      .eq("id", eventId);
 
     if (statusError) {
       console.error(
@@ -734,10 +477,7 @@ function AdminEvents() {
         "Could not update the event approval status."
       );
 
-      setActionLoadingId(
-        null
-      );
-
+      setActionLoadingId(null);
       return false;
     }
 
@@ -748,80 +488,52 @@ function AdminEvents() {
     );
 
     const activityActionMap = {
-      submitted:
-        "submitted_event",
-
-      approved:
-        "approved_event",
-
+      submitted: "submitted_event",
+      approved: "approved_event",
       changes_requested:
         "changes_requested_event",
-
-      published:
-        "published_event",
-
-      rejected:
-        "rejected_event",
+      published: "published_event",
+      rejected: "rejected_event",
     };
 
     const eventRecord =
       events.find(
         (item) =>
-          String(
-            item.id
-          ) ===
-          String(
-            eventId
-          )
+          String(item.id) ===
+          String(eventId)
       );
 
     await logActivity({
       action:
-        activityActionMap[
-          action
-        ] ||
+        activityActionMap[action] ||
         "updated_event_status",
 
-      entityType:
-        "event",
+      entityType: "event",
 
-      entityId:
-        String(
-          eventId
-        ),
+      entityId: String(eventId),
 
       details: {
         title:
-          eventRecord
-            ?.title ||
+          eventRecord?.title ||
           "Unknown event",
-
         status,
-
         comment,
       },
     });
 
     if (
-      String(
-        editingId
-      ) ===
-      String(
-        eventId
-      )
+      String(editingId) ===
+      String(eventId)
     ) {
       cancelEdit();
     }
 
     await fetchEvents();
 
-    setActionLoadingId(
-      null
-    );
+    setActionLoadingId(null);
 
     return true;
   }
-
 
   async function submitForTeacherReview(
     eventId
@@ -829,20 +541,13 @@ function AdminEvents() {
     const changed =
       await changeEventStatus({
         eventId,
-
-        status:
-          "teacher_review",
-
-        action:
-          "submitted",
-
+        status: "teacher_review",
+        action: "submitted",
         comment:
           "Event submitted for Teacher-in-Charge review.",
-
         extraData: {
           submitted_at:
-            new Date()
-              .toISOString(),
+            new Date().toISOString(),
         },
       });
 
@@ -853,33 +558,22 @@ function AdminEvents() {
     }
   }
 
-
   async function submitTeacherEventToVP(
     eventId
   ) {
     const now =
-      new Date()
-        .toISOString();
+      new Date().toISOString();
 
     const changed =
       await changeEventStatus({
         eventId,
-
-        status:
-          "vp_review",
-
-        action:
-          "submitted",
-
+        status: "vp_review",
+        action: "submitted",
         comment:
           "Teacher-created event submitted directly to Vice Principal review.",
-
         extraData: {
-          submitted_at:
-            now,
-
-          teacher_approved_at:
-            now,
+          submitted_at: now,
+          teacher_approved_at: now,
         },
       });
 
@@ -890,27 +584,19 @@ function AdminEvents() {
     }
   }
 
-
   async function approveByTeacher(
     eventId
   ) {
     const changed =
       await changeEventStatus({
         eventId,
-
-        status:
-          "vp_review",
-
-        action:
-          "approved",
-
+        status: "vp_review",
+        action: "approved",
         comment:
           "Approved by Teacher-in-Charge and forwarded to the Vice Principal.",
-
         extraData: {
           teacher_approved_at:
-            new Date()
-              .toISOString(),
+            new Date().toISOString(),
         },
       });
 
@@ -920,7 +606,6 @@ function AdminEvents() {
       );
     }
   }
-
 
   async function requestChanges(
     eventId
@@ -937,19 +622,12 @@ function AdminEvents() {
     const changed =
       await changeEventStatus({
         eventId,
-
-        status:
-          "changes_requested",
-
-        action:
-          "changes_requested",
-
+        status: "changes_requested",
+        action: "changes_requested",
         comment:
-          role ===
-          "vice_principal"
+          role === "vice_principal"
             ? "Changes requested by Vice Principal."
-            : role ===
-                "principal"
+            : role === "principal"
               ? "Changes requested by Principal."
               : "Changes requested by Teacher-in-Charge.",
       });
@@ -961,19 +639,14 @@ function AdminEvents() {
     }
   }
 
-
   async function publishEvent(
     eventId
   ) {
     const eventRecord =
       events.find(
         (event) =>
-          String(
-            event.id
-          ) ===
-          String(
-            eventId
-          )
+          String(event.id) ===
+          String(eventId)
       );
 
     const confirmed =
@@ -989,34 +662,21 @@ function AdminEvents() {
     }
 
     const now =
-      new Date()
-        .toISOString();
+      new Date().toISOString();
 
     const changed =
       await changeEventStatus({
         eventId,
-
-        status:
-          "published",
-
-        action:
-          "published",
-
+        status: "published",
+        action: "published",
         comment:
-          role ===
-          "principal"
+          role === "principal"
             ? "Published by Principal override."
             : "Final publication approved by Vice Principal.",
-
         extraData: {
-          vp_approved_at:
-            now,
-
-          published_at:
-            now,
-
-          published_by:
-            user.id,
+          vp_approved_at: now,
+          published_at: now,
+          published_by: user.id,
         },
       });
 
@@ -1026,7 +686,6 @@ function AdminEvents() {
       );
     }
   }
-
 
   async function rejectEvent(
     eventId
@@ -1043,38 +702,24 @@ function AdminEvents() {
     const changed =
       await changeEventStatus({
         eventId,
-
-        status:
-          "rejected",
-
-        action:
-          "rejected",
-
+        status: "rejected",
+        action: "rejected",
         comment:
-          role ===
-          "principal"
+          role === "principal"
             ? "Event rejected by Principal."
             : "Event rejected by Vice Principal.",
       });
 
     if (changed) {
-      setSuccess(
-        "Event rejected."
-      );
+      setSuccess("Event rejected.");
     }
   }
 
-
-  async function handleDelete(
-    id
-  ) {
-    if (
-      !canDeleteEvent()
-    ) {
+  async function handleDelete(id) {
+    if (!canDeleteEvent()) {
       setError(
         "Only the Principal can permanently delete events."
       );
-
       return;
     }
 
@@ -1087,22 +732,15 @@ function AdminEvents() {
       return;
     }
 
-    setActionLoadingId(
-      id
-    );
-
+    setActionLoadingId(id);
     setError("");
     setSuccess("");
 
     const eventToDelete =
       events.find(
         (event) =>
-          String(
-            event.id
-          ) ===
-          String(
-            id
-          )
+          String(event.id) ===
+          String(id)
       );
 
     const {
@@ -1110,10 +748,7 @@ function AdminEvents() {
     } = await supabase
       .from("events")
       .delete()
-      .eq(
-        "id",
-        id
-      );
+      .eq("id", id);
 
     if (deleteError) {
       console.error(
@@ -1125,60 +760,37 @@ function AdminEvents() {
         "Could not delete event."
       );
 
-      setActionLoadingId(
-        null
-      );
-
+      setActionLoadingId(null);
       return;
     }
 
     await logActivity({
-      action:
-        "deleted_event",
-
-      entityType:
-        "event",
-
-      entityId:
-        String(
-          id
-        ),
+      action: "deleted_event",
+      entityType: "event",
+      entityId: String(id),
 
       details: {
         title:
-          eventToDelete
-            ?.title ||
+          eventToDelete?.title ||
           "Unknown event",
-
         category:
-          eventToDelete
-            ?.category ||
+          eventToDelete?.category ||
           null,
       },
     });
 
     if (
-      String(
-        editingId
-      ) ===
-      String(
-        id
-      )
+      String(editingId) ===
+      String(id)
     ) {
       cancelEdit();
     }
 
     if (
-      String(
-        staffEvent?.id
-      ) ===
-      String(
-        id
-      )
+      String(staffEvent?.id) ===
+      String(id)
     ) {
-      setStaffEvent(
-        null
-      );
+      setStaffEvent(null);
     }
 
     setSuccess(
@@ -1190,90 +802,55 @@ function AdminEvents() {
       fetchStaffAssignments(),
     ]);
 
-    setActionLoadingId(
-      null
-    );
+    setActionLoadingId(null);
   }
 
-
-  function openStaffManager(
-    event
-  ) {
-    if (
-      role !==
-      "principal"
-    ) {
+  function openStaffManager(event) {
+    if (role !== "principal") {
       return;
     }
 
-    setStaffEvent(
-      event
-    );
-
+    setStaffEvent(event);
     setError("");
     setSuccess("");
   }
 
-
   function closeStaffManager() {
-    if (
-      staffSavingId
-    ) {
+    if (staffSavingId) {
       return;
     }
 
-    setStaffEvent(
-      null
-    );
+    setStaffEvent(null);
   }
-
 
   function isStaffAssigned(
     eventId,
     userId
   ) {
-    return staffAssignments
-      .some(
-        (assignment) =>
-          String(
-            assignment.event_id
-          ) ===
-            String(
-              eventId
-            ) &&
-          String(
-            assignment.user_id
-          ) ===
-            String(
-              userId
-            )
-      );
+    return staffAssignments.some(
+      (assignment) =>
+        String(assignment.event_id) ===
+          String(eventId) &&
+        String(assignment.user_id) ===
+          String(userId)
+    );
   }
-
 
   function getAssignedStaffCount(
     eventId
   ) {
-    return staffAssignments
-      .filter(
-        (assignment) =>
-          String(
-            assignment.event_id
-          ) ===
-          String(
-            eventId
-          )
-      )
-      .length;
+    return staffAssignments.filter(
+      (assignment) =>
+        String(assignment.event_id) ===
+        String(eventId)
+    ).length;
   }
-
 
   async function toggleStaffAssignment(
     staff
   ) {
     if (
-      role !==
-        "principal" ||
+      role !== "principal" ||
       !staffEvent
     ) {
       return;
@@ -1285,10 +862,7 @@ function AdminEvents() {
         staff.id
       );
 
-    setStaffSavingId(
-      staff.id
-    );
-
+    setStaffSavingId(staff.id);
     setError("");
     setSuccess("");
 
@@ -1296,9 +870,7 @@ function AdminEvents() {
       const {
         error: removeError,
       } = await supabase
-        .from(
-          "event_staff_assignments"
-        )
+        .from("event_staff_assignments")
         .delete()
         .eq(
           "event_id",
@@ -1319,38 +891,25 @@ function AdminEvents() {
           "Could not remove this Event Staff assignment."
         );
 
-        setStaffSavingId(
-          null
-        );
-
+        setStaffSavingId(null);
         return;
       }
 
       await logActivity({
         action:
           "removed_event_staff",
-
-        entityType:
-          "event",
-
+        entityType: "event",
         entityId:
-          String(
-            staffEvent.id
-          ),
+          String(staffEvent.id),
 
         details: {
           event_title:
             staffEvent.title,
-
-          staff_id:
-            staff.id,
-
+          staff_id: staff.id,
           staff_name:
             staff.full_name,
-
           staff_title:
-            staff.title ||
-            null,
+            staff.title || null,
         },
       });
 
@@ -1361,16 +920,12 @@ function AdminEvents() {
       const {
         error: assignError,
       } = await supabase
-        .from(
-          "event_staff_assignments"
-        )
+        .from("event_staff_assignments")
         .insert({
           event_id:
             staffEvent.id,
-
           user_id:
             staff.id,
-
           assigned_by:
             user.id,
         });
@@ -1394,38 +949,25 @@ function AdminEvents() {
           );
         }
 
-        setStaffSavingId(
-          null
-        );
-
+        setStaffSavingId(null);
         return;
       }
 
       await logActivity({
         action:
           "assigned_event_staff",
-
-        entityType:
-          "event",
-
+        entityType: "event",
         entityId:
-          String(
-            staffEvent.id
-          ),
+          String(staffEvent.id),
 
         details: {
           event_title:
             staffEvent.title,
-
-          staff_id:
-            staff.id,
-
+          staff_id: staff.id,
           staff_name:
             staff.full_name,
-
           staff_title:
-            staff.title ||
-            null,
+            staff.title || null,
         },
       });
 
@@ -1436,11 +978,8 @@ function AdminEvents() {
 
     await fetchStaffAssignments();
 
-    setStaffSavingId(
-      null
-    );
+    setStaffSavingId(null);
   }
-
 
   const filteredEvents =
     useMemo(() => {
@@ -1457,8 +996,7 @@ function AdminEvents() {
         (event) => {
           const approvalStatus =
             STATUS_LABELS[
-              event
-                .approval_status
+              event.approval_status
             ] || "";
 
           const eventStatus =
@@ -1469,39 +1007,22 @@ function AdminEvents() {
           return (
             event.title
               ?.toLowerCase()
-              .includes(
-                query
-              ) ||
-
+              .includes(query) ||
             event.category
               ?.toLowerCase()
-              .includes(
-                query
-              ) ||
-
+              .includes(query) ||
             event.location
               ?.toLowerCase()
-              .includes(
-                query
-              ) ||
-
+              .includes(query) ||
             event.description
               ?.toLowerCase()
-              .includes(
-                query
-              ) ||
-
+              .includes(query) ||
             approvalStatus
               .toLowerCase()
-              .includes(
-                query
-              ) ||
-
+              .includes(query) ||
             eventStatus
               .toLowerCase()
-              .includes(
-                query
-              )
+              .includes(query)
           );
         }
       );
@@ -1510,66 +1031,47 @@ function AdminEvents() {
       search,
     ]);
 
-
   function renderWorkflowActions(
     event
   ) {
     const status =
-      event
-        .approval_status ||
+      event.approval_status ||
       "draft";
 
     const processing =
-      String(
-        actionLoadingId
-      ) ===
-      String(
-        event.id
-      );
+      String(actionLoadingId) ===
+      String(event.id);
 
     const principalCanPublish =
-      role ===
-        "principal" &&
+      role === "principal" &&
       [
         "draft",
         "teacher_review",
         "vp_review",
         "changes_requested",
         "approved",
-      ].includes(
-        status
-      );
+      ].includes(status);
 
     const vicePrincipalCanPublish =
-      role ===
-        "vice_principal" &&
-      status ===
-        "vp_review";
+      role === "vice_principal" &&
+      status === "vp_review";
 
     return (
       <>
-        {canEditEvent(
-          event
-        ) && (
+        {canEditEvent(event) && (
           <button
             type="button"
             className="admin-action-button"
             onClick={() =>
-              handleEdit(
-                event
-              )
+              handleEdit(event)
             }
-            disabled={
-              processing
-            }
+            disabled={processing}
           >
             Edit
           </button>
         )}
 
-
-        {role ===
-          "principal" && (
+        {role === "principal" && (
           <button
             type="button"
             className="admin-action-button"
@@ -1578,12 +1080,9 @@ function AdminEvents() {
                 event
               )
             }
-            disabled={
-              processing
-            }
+            disabled={processing}
           >
             Staff
-
             {getAssignedStaffCount(
               event.id
             ) > 0 && (
@@ -1599,7 +1098,6 @@ function AdminEvents() {
           </button>
         )}
 
-
         {role ===
           "student_admin" &&
           event.created_by ===
@@ -1607,9 +1105,7 @@ function AdminEvents() {
           [
             "draft",
             "changes_requested",
-          ].includes(
-            status
-          ) && (
+          ].includes(status) && (
             <button
               type="button"
               className="admin-action-button"
@@ -1618,9 +1114,7 @@ function AdminEvents() {
                   event.id
                 )
               }
-              disabled={
-                processing
-              }
+              disabled={processing}
             >
               {processing
                 ? "Submitting..."
@@ -1628,20 +1122,15 @@ function AdminEvents() {
             </button>
           )}
 
-
-        {role ===
-          "teacher" &&
+        {role === "teacher" &&
           event.created_by ===
             user?.id &&
           event.society_id ===
-            profile
-              ?.society_id &&
+            profile?.society_id &&
           [
             "draft",
             "changes_requested",
-          ].includes(
-            status
-          ) && (
+          ].includes(status) && (
             <button
               type="button"
               className="admin-action-button"
@@ -1650,9 +1139,7 @@ function AdminEvents() {
                   event.id
                 )
               }
-              disabled={
-                processing
-              }
+              disabled={processing}
             >
               {processing
                 ? "Submitting..."
@@ -1660,12 +1147,9 @@ function AdminEvents() {
             </button>
           )}
 
-
-        {role ===
-          "teacher" &&
+        {role === "teacher" &&
           event.society_id ===
-            profile
-              ?.society_id &&
+            profile?.society_id &&
           status ===
             "teacher_review" && (
             <>
@@ -1677,15 +1161,12 @@ function AdminEvents() {
                     event.id
                   )
                 }
-                disabled={
-                  processing
-                }
+                disabled={processing}
               >
                 {processing
                   ? "Processing..."
                   : "Approve to VP"}
               </button>
-
 
               <button
                 type="button"
@@ -1695,15 +1176,12 @@ function AdminEvents() {
                     event.id
                   )
                 }
-                disabled={
-                  processing
-                }
+                disabled={processing}
               >
                 Request changes
               </button>
             </>
           )}
-
 
         {principalCanPublish && (
           <>
@@ -1715,18 +1193,14 @@ function AdminEvents() {
                   event.id
                 )
               }
-              disabled={
-                processing
-              }
+              disabled={processing}
             >
               {processing
                 ? "Publishing..."
                 : "Publish"}
             </button>
 
-
-            {status !==
-              "draft" && (
+            {status !== "draft" && (
               <button
                 type="button"
                 className="admin-action-button"
@@ -1735,14 +1209,11 @@ function AdminEvents() {
                     event.id
                   )
                 }
-                disabled={
-                  processing
-                }
+                disabled={processing}
               >
                 Request changes
               </button>
             )}
-
 
             {status ===
               "vp_review" && (
@@ -1754,16 +1225,13 @@ function AdminEvents() {
                     event.id
                   )
                 }
-                disabled={
-                  processing
-                }
+                disabled={processing}
               >
                 Reject
               </button>
             )}
           </>
         )}
-
 
         {vicePrincipalCanPublish && (
           <>
@@ -1775,15 +1243,12 @@ function AdminEvents() {
                   event.id
                 )
               }
-              disabled={
-                processing
-              }
+              disabled={processing}
             >
               {processing
                 ? "Publishing..."
                 : "Publish"}
             </button>
-
 
             <button
               type="button"
@@ -1793,13 +1258,10 @@ function AdminEvents() {
                   event.id
                 )
               }
-              disabled={
-                processing
-              }
+              disabled={processing}
             >
               Request changes
             </button>
-
 
             <button
               type="button"
@@ -1809,15 +1271,12 @@ function AdminEvents() {
                   event.id
                 )
               }
-              disabled={
-                processing
-              }
+              disabled={processing}
             >
               Reject
             </button>
           </>
         )}
-
 
         {canDeleteEvent() && (
           <button
@@ -1828,9 +1287,7 @@ function AdminEvents() {
                 event.id
               )
             }
-            disabled={
-              processing
-            }
+            disabled={processing}
           >
             Delete
           </button>
@@ -1839,14 +1296,10 @@ function AdminEvents() {
     );
   }
 
-
   return (
     <AdminLayout>
-
       <div className="admin-page-heading">
-
         <div>
-
           <span className="admin-eyebrow">
             Event Management
           </span>
@@ -1861,12 +1314,9 @@ function AdminEvents() {
             publication across the EventHub
             workflow.
           </p>
-
         </div>
 
-
         <div className="admin-page-count">
-
           <strong>
             {events.length}
           </strong>
@@ -1874,50 +1324,27 @@ function AdminEvents() {
           <span>
             Total events
           </span>
-
         </div>
-
       </div>
-
 
       {error && (
         <div className="admin-inline-error">
-
-          <span>
-            !
-          </span>
-
-          <p>
-            {error}
-          </p>
-
+          <span>!</span>
+          <p>{error}</p>
         </div>
       )}
-
 
       {success && (
         <div className="admin-inline-success">
-
-          <span>
-            ✓
-          </span>
-
-          <p>
-            {success}
-          </p>
-
+          <span>✓</span>
+          <p>{success}</p>
         </div>
       )}
 
-
       <div className="admin-events-layout">
-
         <section className="admin-editor-card">
-
           <div className="admin-editor-header">
-
             <div>
-
               <span>
                 {editingId
                   ? "Editing event"
@@ -1929,35 +1356,25 @@ function AdminEvents() {
                   ? "Update event"
                   : "Create event"}
               </h2>
-
             </div>
-
 
             {editingId && (
               <button
                 type="button"
                 className="admin-editor-close"
-                onClick={
-                  cancelEdit
-                }
+                onClick={cancelEdit}
                 aria-label="Cancel editing"
               >
                 ×
               </button>
             )}
-
           </div>
-
 
           <form
             className="admin-event-form"
-            onSubmit={
-              handleSubmit
-            }
+            onSubmit={handleSubmit}
           >
-
             <div className="admin-field">
-
               <label htmlFor="event-title">
                 Event title
               </label>
@@ -1965,21 +1382,14 @@ function AdminEvents() {
               <input
                 id="event-title"
                 name="title"
-                value={
-                  formData.title
-                }
-                onChange={
-                  handleChange
-                }
+                value={formData.title}
+                onChange={handleChange}
                 placeholder="Annual Sports Meet"
                 required
               />
-
             </div>
 
-
             <div className="admin-field">
-
               <label htmlFor="event-category">
                 Category
               </label>
@@ -1987,21 +1397,14 @@ function AdminEvents() {
               <input
                 id="event-category"
                 name="category"
-                value={
-                  formData.category
-                }
-                onChange={
-                  handleChange
-                }
+                value={formData.category}
+                onChange={handleChange}
                 placeholder="Sports, Academic, Exhibition..."
                 required
               />
-
             </div>
 
-
             <div className="admin-field">
-
               <label htmlFor="event-status">
                 Event status
               </label>
@@ -2009,12 +1412,8 @@ function AdminEvents() {
               <select
                 id="event-status"
                 name="status"
-                value={
-                  formData.status
-                }
-                onChange={
-                  handleChange
-                }
+                value={formData.status}
+                onChange={handleChange}
               >
                 {Object.entries(
                   EVENT_STATUS_LABELS
@@ -2024,26 +1423,18 @@ function AdminEvents() {
                     label,
                   ]) => (
                     <option
-                      key={
-                        value
-                      }
-                      value={
-                        value
-                      }
+                      key={value}
+                      value={value}
                     >
                       {label}
                     </option>
                   )
                 )}
               </select>
-
             </div>
 
-
             <div className="admin-form-row">
-
               <div className="admin-field">
-
                 <label htmlFor="event-capacity">
                   Capacity
                 </label>
@@ -2054,20 +1445,14 @@ function AdminEvents() {
                   type="number"
                   min="1"
                   value={
-                    formData
-                      .capacity
+                    formData.capacity
                   }
-                  onChange={
-                    handleChange
-                  }
+                  onChange={handleChange}
                   placeholder="250"
                 />
-
               </div>
 
-
               <div className="admin-field">
-
                 <label htmlFor="event-registration">
                   Registration
                 </label>
@@ -2081,23 +1466,19 @@ function AdminEvents() {
                       ? "true"
                       : "false"
                   }
-                  onChange={(
-                    event
-                  ) =>
+                  onChange={(event) => {
                     setFormData(
-                      (
-                        current
-                      ) => ({
+                      (current) => ({
                         ...current,
-
                         registration_enabled:
-                          event
-                            .target
-                            .value ===
+                          event.target.value ===
                           "true",
                       })
-                    )
-                  }
+                    );
+
+                    setError("");
+                    setSuccess("");
+                  }}
                 >
                   <option value="true">
                     Enabled
@@ -2107,16 +1488,11 @@ function AdminEvents() {
                     Disabled
                   </option>
                 </select>
-
               </div>
-
             </div>
 
-
             <div className="admin-form-row">
-
               <div className="admin-field">
-
                 <label htmlFor="event-date">
                   Date
                 </label>
@@ -2126,20 +1502,14 @@ function AdminEvents() {
                   name="event_date"
                   type="date"
                   value={
-                    formData
-                      .event_date
+                    formData.event_date
                   }
-                  onChange={
-                    handleChange
-                  }
+                  onChange={handleChange}
                   required
                 />
-
               </div>
 
-
               <div className="admin-field">
-
                 <label htmlFor="event-time">
                   Time
                 </label>
@@ -2149,22 +1519,15 @@ function AdminEvents() {
                   name="event_time"
                   type="time"
                   value={
-                    formData
-                      .event_time
+                    formData.event_time
                   }
-                  onChange={
-                    handleChange
-                  }
+                  onChange={handleChange}
                   required
                 />
-
               </div>
-
             </div>
 
-
             <div className="admin-field">
-
               <label htmlFor="event-location">
                 Location
               </label>
@@ -2173,21 +1536,15 @@ function AdminEvents() {
                 id="event-location"
                 name="location"
                 value={
-                  formData
-                    .location
+                  formData.location
                 }
-                onChange={
-                  handleChange
-                }
+                onChange={handleChange}
                 placeholder="Main Ground"
                 required
               />
-
             </div>
 
-
             <div className="admin-field">
-
               <label htmlFor="event-description">
                 Description
               </label>
@@ -2197,26 +1554,18 @@ function AdminEvents() {
                 name="description"
                 rows="6"
                 value={
-                  formData
-                    .description
+                  formData.description
                 }
-                onChange={
-                  handleChange
-                }
+                onChange={handleChange}
                 placeholder="Add a clear summary of the event..."
               />
-
             </div>
 
-
             <div className="admin-form-actions">
-
               <button
                 type="submit"
                 className="btn btn-primary admin-save-button"
-                disabled={
-                  saving
-                }
+                disabled={saving}
               >
                 {saving
                   ? "Saving..."
@@ -2225,41 +1574,27 @@ function AdminEvents() {
                     : "Create event"}
 
                 {!saving && (
-                  <span>
-                    →
-                  </span>
+                  <span>→</span>
                 )}
               </button>
-
 
               {editingId && (
                 <button
                   type="button"
                   className="btn btn-outline"
-                  onClick={
-                    cancelEdit
-                  }
-                  disabled={
-                    saving
-                  }
+                  onClick={cancelEdit}
+                  disabled={saving}
                 >
                   Cancel
                 </button>
               )}
-
             </div>
-
           </form>
-
         </section>
 
-
         <section className="admin-events-panel">
-
           <div className="admin-events-panel-header">
-
             <div>
-
               <span>
                 Approval workflow
               </span>
@@ -2267,61 +1602,38 @@ function AdminEvents() {
               <h2>
                 Current events
               </h2>
-
             </div>
 
-
             <div className="admin-events-search">
-
-              <span>
-                ⌕
-              </span>
+              <span>⌕</span>
 
               <input
                 type="search"
-                value={
-                  search
-                }
-                onChange={(
-                  event
-                ) =>
+                value={search}
+                onChange={(event) =>
                   setSearch(
-                    event
-                      .target
-                      .value
+                    event.target.value
                   )
                 }
                 placeholder="Search events..."
               />
-
             </div>
-
           </div>
-
 
           <div className="admin-events-results">
-
             <span>
               Showing{" "}
-              {
-                filteredEvents
-                  .length
-              }{" "}
+              {filteredEvents.length}{" "}
               of{" "}
-              {
-                events.length
-              }
+              {events.length}
             </span>
-
           </div>
-
 
           {loading ? (
             <LoadingState
               label="Loading events..."
             />
-          ) : filteredEvents
-              .length ===
+          ) : filteredEvents.length ===
             0 ? (
             <EmptyState
               title={
@@ -2337,19 +1649,14 @@ function AdminEvents() {
             />
           ) : (
             <div className="admin-event-list-new">
-
               {filteredEvents.map(
-                (
-                  event
-                ) => {
+                (event) => {
                   const approvalStatus =
-                    event
-                      .approval_status ||
+                    event.approval_status ||
                     "draft";
 
                   const publicStatus =
-                    event
-                      .status ||
+                    event.status ||
                     "upcoming";
 
                   const assignedCount =
@@ -2360,45 +1667,31 @@ function AdminEvents() {
                   return (
                     <article
                       className="admin-event-row-new"
-                      key={
-                        event.id
-                      }
+                      key={event.id}
                     >
-
                       <div className="admin-event-date-block">
-
                         <strong>
                           {getDay(
-                            event
-                              .event_date
+                            event.event_date
                           )}
                         </strong>
 
                         <span>
                           {getMonth(
-                            event
-                              .event_date
+                            event.event_date
                           )}
                         </span>
-
                       </div>
 
-
                       <div className="admin-event-row-main">
-
                         <div className="admin-event-row-top">
-
                           <span className="admin-event-category">
-                            {event
-                              .category ||
+                            {event.category ||
                               "School Event"}
                           </span>
 
-
                           <span
-                            className={
-                              `admin-event-status admin-event-status--${approvalStatus}`
-                            }
+                            className={`admin-event-status admin-event-status--${approvalStatus}`}
                           >
                             {STATUS_LABELS[
                               approvalStatus
@@ -2406,11 +1699,8 @@ function AdminEvents() {
                               approvalStatus}
                           </span>
 
-
                           <span
-                            className={
-                              `admin-event-public-status admin-event-public-status--${publicStatus}`
-                            }
+                            className={`admin-event-public-status admin-event-public-status--${publicStatus}`}
                           >
                             {EVENT_STATUS_LABELS[
                               publicStatus
@@ -2418,105 +1708,73 @@ function AdminEvents() {
                               publicStatus}
                           </span>
 
-
                           <span className="admin-event-id">
                             #
                             {String(
                               event.id
-                            ).slice(
-                              0,
-                              8
-                            )}
+                            ).slice(0, 8)}
                           </span>
-
                         </div>
-
 
                         <h3>
                           {event.title}
                         </h3>
 
-
                         <div className="admin-event-row-meta">
-
                           <span>
                             ◷{" "}
                             {formatEventTime(
-                              event
-                                .event_time
+                              event.event_time
                             )}
                           </span>
 
-
                           <span>
                             ⌖{" "}
-                            {event
-                              .location ||
+                            {event.location ||
                               "Venue TBA"}
                           </span>
-
 
                           {event.capacity && (
                             <span>
                               Capacity{" "}
-                              {
-                                event
-                                  .capacity
-                              }
+                              {event.capacity}
                             </span>
                           )}
 
-
                           <span>
-                            {event
-                              .registration_enabled
+                            {event.registration_enabled
                               ? "Registration open"
                               : "Registration disabled"}
                           </span>
-
 
                           {role ===
                             "principal" && (
                             <span>
                               Staff{" "}
-                              {
-                                assignedCount
-                              }
+                              {assignedCount}
                             </span>
                           )}
-
                         </div>
-
                       </div>
 
-
                       <div className="admin-event-row-actions">
-
                         {renderWorkflowActions(
                           event
                         )}
-
                       </div>
-
                     </article>
                   );
                 }
               )}
-
             </div>
           )}
-
         </section>
-
       </div>
-
 
       {staffEvent && (
         <div
           className="admin-user-modal-backdrop"
-          onMouseDown={(
-            event
-          ) => {
+          onMouseDown={(event) => {
             if (
               event.target ===
               event.currentTarget
@@ -2525,13 +1783,9 @@ function AdminEvents() {
             }
           }}
         >
-
           <section className="admin-user-modal admin-event-staff-modal">
-
             <div className="admin-editor-header">
-
               <div>
-
                 <span>
                   Event Operations
                 </span>
@@ -2539,9 +1793,7 @@ function AdminEvents() {
                 <h2>
                   Assign Event Staff
                 </h2>
-
               </div>
-
 
               <button
                 type="button"
@@ -2549,50 +1801,36 @@ function AdminEvents() {
                 onClick={
                   closeStaffManager
                 }
-                disabled={
-                  Boolean(
-                    staffSavingId
-                  )
-                }
+                disabled={Boolean(
+                  staffSavingId
+                )}
                 aria-label="Close Event Staff manager"
               >
                 ×
               </button>
-
             </div>
 
-
             <div className="admin-event-staff-summary">
-
               <span>
                 Event
               </span>
 
               <strong>
-                {
-                  staffEvent
-                    .title
-                }
+                {staffEvent.title}
               </strong>
 
               <p>
                 {formatEventDate(
-                  staffEvent
-                    .event_date
+                  staffEvent.event_date
                 )}
                 {" · "}
-                {staffEvent
-                  .location ||
+                {staffEvent.location ||
                   "Venue TBA"}
               </p>
-
             </div>
 
-
             <div className="admin-event-staff-heading">
-
               <div>
-
                 <span>
                   Gate access
                 </span>
@@ -2600,25 +1838,20 @@ function AdminEvents() {
                 <h3>
                   Assigned staff
                 </h3>
-
               </div>
-
 
               <strong>
                 {getAssignedStaffCount(
                   staffEvent.id
                 )}
               </strong>
-
             </div>
-
 
             {staffLoading ? (
               <LoadingState
                 label="Loading Event Staff..."
               />
-            ) : eventStaff
-                .length ===
+            ) : eventStaff.length ===
               0 ? (
               <EmptyState
                 title="No Event Staff"
@@ -2626,15 +1859,11 @@ function AdminEvents() {
               />
             ) : (
               <div className="admin-event-staff-list">
-
                 {eventStaff.map(
-                  (
-                    staff
-                  ) => {
+                  (staff) => {
                     const assigned =
                       isStaffAssigned(
-                        staffEvent
-                          .id,
+                        staffEvent.id,
                         staff.id
                       );
 
@@ -2642,37 +1871,27 @@ function AdminEvents() {
                       String(
                         staffSavingId
                       ) ===
-                      String(
-                        staff.id
-                      );
+                      String(staff.id);
 
                     return (
                       <article
-                        key={
-                          staff.id
-                        }
+                        key={staff.id}
                         className={
                           assigned
                             ? "admin-event-staff-row assigned"
                             : "admin-event-staff-row"
                         }
                       >
-
                         <div className="admin-event-staff-avatar">
                           {getInitials(
-                            staff
-                              .full_name
+                            staff.full_name
                           )}
                         </div>
 
-
                         <div className="admin-event-staff-main">
-
                           <div>
-
                             <h4>
-                              {staff
-                                .full_name ||
+                              {staff.full_name ||
                                 "Event Staff"}
                             </h4>
 
@@ -2687,9 +1906,7 @@ function AdminEvents() {
                                 ? "Assigned"
                                 : "Not assigned"}
                             </span>
-
                           </div>
-
 
                           <p>
                             {staff.title ||
@@ -2697,13 +1914,9 @@ function AdminEvents() {
                           </p>
 
                           <small>
-                            {
-                              staff.email
-                            }
+                            {staff.email}
                           </small>
-
                         </div>
-
 
                         <button
                           type="button"
@@ -2727,43 +1940,30 @@ function AdminEvents() {
                               ? "Remove"
                               : "Assign"}
                         </button>
-
                       </article>
                     );
                   }
                 )}
-
               </div>
             )}
 
-
             <div className="admin-event-staff-note">
-
-              <span>
-                i
-              </span>
+              <span>i</span>
 
               <p>
                 Only assigned Event Staff can
                 verify or check in tickets for
                 this event.
               </p>
-
             </div>
-
           </section>
-
         </div>
       )}
-
     </AdminLayout>
   );
 }
 
-
-function normalizeTimeForInput(
-  time
-) {
+function normalizeTimeForInput(time) {
   if (!time) {
     return "";
   }
@@ -2780,10 +1980,7 @@ function normalizeTimeForInput(
   return `${match[1]}:${match[2]}`;
 }
 
-
-function formatEventTime(
-  time
-) {
+function formatEventTime(time) {
   if (!time) {
     return "Time TBA";
   }
@@ -2794,15 +1991,11 @@ function formatEventTime(
     );
 
   if (!match) {
-    return String(
-      time
-    );
+    return String(time);
   }
 
   let hours =
-    Number(
-      match[1]
-    );
+    Number(match[1]);
 
   const minutes =
     match[2];
@@ -2813,16 +2006,12 @@ function formatEventTime(
       : "AM";
 
   hours =
-    hours % 12 ||
-    12;
+    hours % 12 || 12;
 
   return `${hours}:${minutes} ${modifier}`;
 }
 
-
-function getValidEventDate(
-  date
-) {
+function getValidEventDate(date) {
   if (!date) {
     return null;
   }
@@ -2843,14 +2032,9 @@ function getValidEventDate(
   return value;
 }
 
-
-function formatEventDate(
-  date
-) {
+function formatEventDate(date) {
   const value =
-    getValidEventDate(
-      date
-    );
+    getValidEventDate(date);
 
   if (!value) {
     return "Date TBA";
@@ -2859,24 +2043,16 @@ function formatEventDate(
   return value.toLocaleDateString(
     "en-US",
     {
-      year:
-        "numeric",
-      month:
-        "short",
-      day:
-        "numeric",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     }
   );
 }
 
-
-function getDay(
-  date
-) {
+function getDay(date) {
   const value =
-    getValidEventDate(
-      date
-    );
+    getValidEventDate(date);
 
   if (!value) {
     return "--";
@@ -2885,20 +2061,14 @@ function getDay(
   return value.toLocaleDateString(
     "en-US",
     {
-      day:
-        "2-digit",
+      day: "2-digit",
     }
   );
 }
 
-
-function getMonth(
-  date
-) {
+function getMonth(date) {
   const value =
-    getValidEventDate(
-      date
-    );
+    getValidEventDate(date);
 
   if (!value) {
     return "TBA";
@@ -2908,17 +2078,13 @@ function getMonth(
     .toLocaleDateString(
       "en-US",
       {
-        month:
-          "short",
+        month: "short",
       }
     )
     .toUpperCase();
 }
 
-
-function getInitials(
-  name
-) {
+function getInitials(name) {
   if (!name) {
     return "?";
   }
@@ -2926,10 +2092,7 @@ function getInitials(
   return name
     .trim()
     .split(/\s+/)
-    .slice(
-      0,
-      2
-    )
+    .slice(0, 2)
     .map(
       (part) =>
         part
@@ -2938,6 +2101,5 @@ function getInitials(
     )
     .join("");
 }
-
 
 export default AdminEvents;

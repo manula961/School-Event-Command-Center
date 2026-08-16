@@ -2,7 +2,6 @@ import { Navigate } from "react-router-dom";
 
 import { useAuth } from "../../contexts/AuthContext";
 
-
 function ProtectedRoute({ children }) {
   const {
     user,
@@ -10,7 +9,6 @@ function ProtectedRoute({ children }) {
     isCMSUser,
     loading,
   } = useAuth();
-
 
   if (loading) {
     return (
@@ -33,7 +31,6 @@ function ProtectedRoute({ children }) {
     );
   }
 
-
   if (!user || !isCMSUser) {
     return (
       <Navigate
@@ -42,7 +39,6 @@ function ProtectedRoute({ children }) {
       />
     );
   }
-
 
   if (!profile?.is_active) {
     return (
@@ -63,9 +59,7 @@ function ProtectedRoute({ children }) {
     );
   }
 
-
   return children;
 }
-
 
 export default ProtectedRoute;

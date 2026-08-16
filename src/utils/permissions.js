@@ -6,7 +6,6 @@ export const ROLES = {
   EVENT_STAFF: "event_staff",
 };
 
-
 export const ROLE_LABELS = {
   [ROLES.PRINCIPAL]: "Principal",
   [ROLES.VICE_PRINCIPAL]: "Vice Principal",
@@ -14,7 +13,6 @@ export const ROLE_LABELS = {
   [ROLES.STUDENT_ADMIN]: "Student Admin",
   [ROLES.EVENT_STAFF]: "Event Staff",
 };
-
 
 export const permissions = {
   [ROLES.PRINCIPAL]: {
@@ -31,7 +29,6 @@ export const permissions = {
     checkInAttendees: true,
   },
 
-
   [ROLES.VICE_PRINCIPAL]: {
     manageUsers: false,
     manageEvents: true,
@@ -45,7 +42,6 @@ export const permissions = {
     viewLogs: false,
     checkInAttendees: false,
   },
-
 
   [ROLES.TEACHER]: {
     manageUsers: false,
@@ -61,7 +57,6 @@ export const permissions = {
     checkInAttendees: false,
   },
 
-
   [ROLES.STUDENT_ADMIN]: {
     manageUsers: false,
     manageEvents: true,
@@ -75,7 +70,6 @@ export const permissions = {
     viewLogs: false,
     checkInAttendees: false,
   },
-
 
   [ROLES.EVENT_STAFF]: {
     manageUsers: false,
@@ -92,18 +86,15 @@ export const permissions = {
   },
 };
 
-
 export function can(role, permission) {
   if (!role || !permission) {
     return false;
   }
 
-
   return Boolean(
     permissions[role]?.[permission]
   );
 }
-
 
 export function canUser(
   role,
@@ -113,7 +104,6 @@ export function canUser(
   if (!role || !permission) {
     return false;
   }
-
 
   if (
     Object.prototype.hasOwnProperty.call(
@@ -125,7 +115,6 @@ export function canUser(
       overrides[permission]
     );
   }
-
 
   return Boolean(
     permissions[role]?.[permission]

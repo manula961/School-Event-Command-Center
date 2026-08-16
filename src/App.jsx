@@ -4,10 +4,6 @@ import {
   useLocation,
 } from "react-router-dom";
 
-import StudentRegistrations from "./pages/StudentRegistrations";
-import AdminLogs from "./pages/AdminLogs";
-import StudentTickets from "./pages/StudentTickets";
-
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 
@@ -25,6 +21,8 @@ import Register from "./pages/Register";
 import StudentLogin from "./pages/StudentLogin";
 import StudentSignup from "./pages/StudentSignup";
 import StudentDashboard from "./pages/StudentDashboard";
+import StudentRegistrations from "./pages/StudentRegistrations";
+import StudentTickets from "./pages/StudentTickets";
 
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
@@ -35,11 +33,12 @@ import AdminRegistrations from "./pages/AdminRegistrations";
 import AdminUpdates from "./pages/AdminUpdates";
 import AdminUsers from "./pages/AdminUsers";
 import AdminCheckIn from "./pages/AdminCheckIn";
+import AdminLogs from "./pages/AdminLogs";
+import AdminMedia from "./pages/AdminMedia";
 
 import NotFound from "./pages/NotFound";
 
 import "./App.css";
-
 
 const CMS_ROLES = [
   "principal",
@@ -48,7 +47,6 @@ const CMS_ROLES = [
   "student_admin",
   "event_staff",
 ];
-
 
 function App() {
   const location = useLocation();
@@ -64,66 +62,53 @@ function App() {
     isAdminRoute ||
     isStudentAuthRoute;
 
-
   return (
     <div className="app-shell">
-
       {!hidePublicLayout && (
         <Navbar />
       )}
 
-
       <div className="app-content">
-
         <Routes>
-
           <Route
             path="/"
             element={<Home />}
           />
-
 
           <Route
             path="/events"
             element={<Events />}
           />
 
-
           <Route
             path="/events/:id"
             element={<EventDetails />}
           />
-
 
           <Route
             path="/calendar"
             element={<Calendar />}
           />
 
-
           <Route
             path="/announcements"
             element={<Announcements />}
           />
-
 
           <Route
             path="/register/:id"
             element={<Register />}
           />
 
-
           <Route
             path="/student/login"
             element={<StudentLogin />}
           />
 
-
           <Route
             path="/student/signup"
             element={<StudentSignup />}
           />
-
 
           <Route
             path="/student/dashboard"
@@ -134,7 +119,6 @@ function App() {
             }
           />
 
-
           <Route
             path="/student/registrations"
             element={
@@ -143,7 +127,6 @@ function App() {
               </StudentProtectedRoute>
             }
           />
-
 
           <Route
             path="/student/tickets"
@@ -154,12 +137,10 @@ function App() {
             }
           />
 
-
           <Route
             path="/admin/login"
             element={<AdminLogin />}
           />
-
 
           <Route
             path="/admin"
@@ -179,7 +160,6 @@ function App() {
             }
           />
 
-
           <Route
             path="/admin/events"
             element={
@@ -193,7 +173,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
 
           <Route
             path="/admin/check-in"
@@ -209,7 +188,6 @@ function App() {
             }
           />
 
-
           <Route
             path="/admin/approvals"
             element={
@@ -223,7 +201,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
 
           <Route
             path="/admin/announcements"
@@ -239,6 +216,19 @@ function App() {
             }
           />
 
+          <Route
+            path="/admin/media"
+            element={
+              <ProtectedRoute>
+                <PermissionRoute
+                  roles={CMS_ROLES}
+                  permission="manageMedia"
+                >
+                  <AdminMedia />
+                </PermissionRoute>
+              </ProtectedRoute>
+            }
+          />
 
           <Route
             path="/admin/registrations"
@@ -254,7 +244,6 @@ function App() {
             }
           />
 
-
           <Route
             path="/admin/updates"
             element={
@@ -268,7 +257,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
 
           <Route
             path="/admin/users"
@@ -284,7 +272,6 @@ function App() {
             }
           />
 
-
           <Route
             path="/admin/logs"
             element={
@@ -299,24 +286,18 @@ function App() {
             }
           />
 
-
           <Route
             path="*"
             element={<NotFound />}
           />
-
         </Routes>
-
       </div>
-
 
       {!hidePublicLayout && (
         <Footer />
       )}
-
     </div>
   );
 }
-
 
 export default App;

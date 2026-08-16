@@ -14,9 +14,13 @@ function StudentProtectedRoute({ children }) {
       <div className="student-auth-loading">
         <div className="loading-spinner" />
 
-        <strong>EventHub Student</strong>
+        <strong>
+          EventHub Student
+        </strong>
 
-        <span>Checking your session...</span>
+        <span>
+          Checking your session...
+        </span>
       </div>
     );
   }
