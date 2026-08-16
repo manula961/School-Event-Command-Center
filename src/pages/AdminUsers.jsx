@@ -28,13 +28,15 @@ const ROLE_LABELS = {
 const PERMISSION_LABELS = {
   manageEvents: "Manage events",
   publishEvents: "Publish events",
+  approveEvents: "Approve events",
   manageAnnouncements: "Manage announcements",
   manageRegistrations: "Manage registrations",
   manageMedia: "Manage media",
   manageLiveUpdates: "Manage live updates",
-  approveEvents: "Approve events",
   viewAnalytics: "View analytics",
   checkInAttendees: "Event check-in",
+  manageUsers: "Manage users & roles",
+  viewLogs: "View activity logs",
 };
 
 function AdminUsers() {
@@ -199,7 +201,8 @@ function AdminUsers() {
       if (value === "default") {
         delete nextOverrides[permission];
       } else {
-        nextOverrides[permission] = value === "allow";
+        nextOverrides[permission] =
+          value === "allow";
       }
 
       return {
@@ -209,10 +212,22 @@ function AdminUsers() {
     });
   }
 
+  function resetPermissionOverrides(
+    setter
+  ) {
+    setter((current) => ({
+      ...current,
+      permissionOverrides: {},
+    }));
+  }
+
   function openCreatePanel() {
     setError("");
     setSuccess("");
-    setFormData(emptyForm);
+    setFormData({
+      ...emptyForm,
+      permissionOverrides: {},
+    });
     setShowCreatePanel(true);
   }
 
@@ -220,7 +235,10 @@ function AdminUsers() {
     if (saving) return;
 
     setShowCreatePanel(false);
-    setFormData(emptyForm);
+    setFormData({
+      ...emptyForm,
+      permissionOverrides: {},
+    });
     setError("");
   }
 
@@ -235,13 +253,21 @@ function AdminUsers() {
       formData.role === "teacher" ||
       formData.role === "student_admin";
 
-    if (requiresSociety && !formData.societyId) {
-      setError("Select a society for this account.");
+    if (
+      requiresSociety &&
+      !formData.societyId
+    ) {
+      setError(
+        "Select a society for this account."
+      );
       setSaving(false);
       return;
     }
 
-    if (formData.password.length < 8) {
+    if (
+      formData.password.length <
+      8
+    ) {
       setError(
         "Temporary password must contain at least 8 characters."
       );
@@ -249,20 +275,39 @@ function AdminUsers() {
       return;
     }
 
-    const { data, error } = await supabase.functions.invoke(
+    const {
+      data,
+      error,
+    } = await supabase.functions.invoke(
       "create-cms-user",
       {
         body: {
-          fullName: formData.fullName.trim(),
-          email: formData.email.trim().toLowerCase(),
-          password: formData.password,
-          role: formData.role,
-          title: formData.title.trim() || null,
+          fullName:
+            formData.fullName.trim(),
+
+          email:
+            formData.email
+              .trim()
+              .toLowerCase(),
+
+          password:
+            formData.password,
+
+          role:
+            formData.role,
+
+          title:
+            formData.title.trim() ||
+            null,
+
           permissionOverrides:
-            formData.permissionOverrides || {},
-          societyId: requiresSociety
-            ? formData.societyId
-            : null,
+            formData.permissionOverrides ||
+            {},
+
+          societyId:
+            requiresSociety
+              ? formData.societyId
+              : null,
         },
       }
     );
@@ -285,11 +330,18 @@ function AdminUsers() {
       return;
     }
 
-    const name = formData.fullName.trim();
+    const name =
+      formData.fullName.trim();
 
-    setSuccess(`${name} was added to EventHub.`);
+    setSuccess(
+      `${name} was added to EventHub.`
+    );
 
-    setFormData(emptyForm);
+    setFormData({
+      ...emptyForm,
+      permissionOverrides: {},
+    });
+
     setShowCreatePanel(false);
     setSaving(false);
 
@@ -303,14 +355,31 @@ function AdminUsers() {
     setEditingUser(user);
 
     setEditUserForm({
-      fullName: user.full_name || "",
-      email: user.email || "",
-      password: "",
-      role: user.role,
-      societyId: user.society_id || "",
-      title: user.title || "",
+      fullName:
+        user.full_name ||
+        "",
+
+      email:
+        user.email ||
+        "",
+
+      password:
+        "",
+
+      role:
+        user.role,
+
+      societyId:
+        user.society_id ||
+        "",
+
+      title:
+        user.title ||
+        "",
+
       permissionOverrides:
-        user.permission_overrides || {},
+        user.permission_overrides ||
+        {},
     });
   }
 
@@ -318,7 +387,11 @@ function AdminUsers() {
     if (userUpdating) return;
 
     setEditingUser(null);
-    setEditUserForm(emptyForm);
+
+    setEditUserForm({
+      ...emptyForm,
+      permissionOverrides: {},
+    });
   }
 
   async function handleUpdateUser(event) {
@@ -330,14 +403,20 @@ function AdminUsers() {
       editUserForm.role === "teacher" ||
       editUserForm.role === "student_admin";
 
-    if (requiresSociety && !editUserForm.societyId) {
-      setError("Select a society for this account.");
+    if (
+      requiresSociety &&
+      !editUserForm.societyId
+    ) {
+      setError(
+        "Select a society for this account."
+      );
       return;
     }
 
     if (
       editUserForm.password &&
-      editUserForm.password.length < 8
+      editUserForm.password.length <
+        8
     ) {
       setError(
         "New password must contain at least 8 characters."
@@ -349,22 +428,46 @@ function AdminUsers() {
     setError("");
     setSuccess("");
 
-    const { data, error } = await supabase.functions.invoke(
+    const {
+      data,
+      error,
+    } = await supabase.functions.invoke(
       "update-cms-user",
       {
         body: {
-          userId: editingUser.id,
-          fullName: editUserForm.fullName.trim(),
-          email: editUserForm.email.trim().toLowerCase(),
-          password: editUserForm.password || null,
-          role: editUserForm.role,
-          title: editUserForm.title.trim() || null,
+          userId:
+            editingUser.id,
+
+          fullName:
+            editUserForm.fullName.trim(),
+
+          email:
+            editUserForm.email
+              .trim()
+              .toLowerCase(),
+
+          password:
+            editUserForm.password ||
+            null,
+
+          role:
+            editUserForm.role,
+
+          title:
+            editUserForm.title.trim() ||
+            null,
+
           permissionOverrides:
-            editUserForm.permissionOverrides || {},
-          societyId: requiresSociety
-            ? editUserForm.societyId
-            : null,
-          isActive: editingUser.is_active,
+            editUserForm.permissionOverrides ||
+            {},
+
+          societyId:
+            requiresSociety
+              ? editUserForm.societyId
+              : null,
+
+          isActive:
+            editingUser.is_active,
         },
       }
     );
@@ -392,7 +495,12 @@ function AdminUsers() {
     );
 
     setEditingUser(null);
-    setEditUserForm(emptyForm);
+
+    setEditUserForm({
+      ...emptyForm,
+      permissionOverrides: {},
+    });
+
     setUserUpdating(false);
 
     await fetchUsers();
@@ -402,32 +510,42 @@ function AdminUsers() {
     setError("");
     setSuccess("");
 
-    if (user.role === "principal") {
+    if (
+      user.role ===
+      "principal"
+    ) {
       setError(
         "The Principal account cannot be deleted."
       );
       return;
     }
 
-    const confirmed = window.confirm(
-      `Permanently delete ${
-        user.full_name ||
-        user.email ||
-        "this user"
-      }?
+    const confirmed =
+      window.confirm(
+        `Permanently delete ${
+          user.full_name ||
+          user.email ||
+          "this user"
+        }?
 
 This will remove the CMS account and cannot be undone.`
-    );
+      );
 
     if (!confirmed) return;
 
-    setDeletingUserId(user.id);
+    setDeletingUserId(
+      user.id
+    );
 
-    const { data, error } = await supabase.functions.invoke(
+    const {
+      data,
+      error,
+    } = await supabase.functions.invoke(
       "delete-cms-user",
       {
         body: {
-          userId: user.id,
+          userId:
+            user.id,
         },
       }
     );
@@ -462,9 +580,16 @@ This will remove the CMS account and cannot be undone.`
         } was deleted successfully.`
     );
 
-    if (editingUser?.id === user.id) {
+    if (
+      editingUser?.id ===
+      user.id
+    ) {
       setEditingUser(null);
-      setEditUserForm(emptyForm);
+
+      setEditUserForm({
+        ...emptyForm,
+        permissionOverrides: {},
+      });
     }
 
     setDeletingUserId(null);
@@ -496,19 +621,29 @@ This will remove the CMS account and cannot be undone.`
   async function handleCreateSociety(event) {
     event.preventDefault();
 
-    const name = societyName.trim();
-    const code = societyCode
-      .trim()
-      .toUpperCase();
+    const name =
+      societyName.trim();
 
-    if (!name || !code) {
+    const code =
+      societyCode
+        .trim()
+        .toUpperCase();
+
+    if (
+      !name ||
+      !code
+    ) {
       setError(
         "Society name and code are required."
       );
       return;
     }
 
-    if (!/^[A-Z0-9]{2,6}$/.test(code)) {
+    if (
+      !/^[A-Z0-9]{2,6}$/.test(
+        code
+      )
+    ) {
       setError(
         "Society code must contain 2–6 letters or numbers."
       );
@@ -519,13 +654,18 @@ This will remove the CMS account and cannot be undone.`
     setError("");
     setSuccess("");
 
-    const { data, error } = await supabase
+    const {
+      data,
+      error,
+    } = await supabase
       .from("societies")
       .insert({
         name,
         code,
+
         description:
-          societyDescription.trim() || null,
+          societyDescription.trim() ||
+          null,
       })
       .select("id, name, code")
       .single();
@@ -533,7 +673,10 @@ This will remove the CMS account and cannot be undone.`
     if (error) {
       console.error(error);
 
-      if (error.code === "23505") {
+      if (
+        error.code ===
+        "23505"
+      ) {
         setError(
           `The society code "${code}" is already being used.`
         );
@@ -548,9 +691,16 @@ This will remove the CMS account and cannot be undone.`
     }
 
     await logActivity({
-      action: "created_society",
-      entityType: "society",
-      entityId: data?.id || null,
+      action:
+        "created_society",
+
+      entityType:
+        "society",
+
+      entityId:
+        data?.id ||
+        null,
+
       details: {
         name,
         code,
@@ -571,22 +721,29 @@ This will remove the CMS account and cannot be undone.`
     await fetchSocieties();
   }
 
-  function openEditSociety(society) {
+  function openEditSociety(
+    society
+  ) {
     setError("");
     setSuccess("");
 
-    setEditingSociety(society);
+    setEditingSociety(
+      society
+    );
 
     setEditSocietyName(
-      society.name || ""
+      society.name ||
+      ""
     );
 
     setEditSocietyCode(
-      society.code || ""
+      society.code ||
+      ""
     );
 
     setEditSocietyDescription(
-      society.description || ""
+      society.description ||
+      ""
     );
   }
 
@@ -596,24 +753,36 @@ This will remove the CMS account and cannot be undone.`
     setEditingSociety(null);
   }
 
-  async function handleUpdateSociety(event) {
+  async function handleUpdateSociety(
+    event
+  ) {
     event.preventDefault();
 
     if (!editingSociety) return;
 
-    const name = editSocietyName.trim();
-    const code = editSocietyCode
-      .trim()
-      .toUpperCase();
+    const name =
+      editSocietyName.trim();
 
-    if (!name || !code) {
+    const code =
+      editSocietyCode
+        .trim()
+        .toUpperCase();
+
+    if (
+      !name ||
+      !code
+    ) {
       setError(
         "Society name and code are required."
       );
       return;
     }
 
-    if (!/^[A-Z0-9]{2,6}$/.test(code)) {
+    if (
+      !/^[A-Z0-9]{2,6}$/.test(
+        code
+      )
+    ) {
       setError(
         "Society code must contain 2–6 letters or numbers."
       );
@@ -624,13 +793,17 @@ This will remove the CMS account and cannot be undone.`
     setError("");
     setSuccess("");
 
-    const { error } = await supabase
+    const {
+      error,
+    } = await supabase
       .from("societies")
       .update({
         name,
         code,
+
         description:
-          editSocietyDescription.trim() || null,
+          editSocietyDescription.trim() ||
+          null,
       })
       .eq(
         "id",
@@ -640,7 +813,10 @@ This will remove the CMS account and cannot be undone.`
     if (error) {
       console.error(error);
 
-      if (error.code === "23505") {
+      if (
+        error.code ===
+        "23505"
+      ) {
         setError(
           `The society code "${code}" is already in use.`
         );
@@ -655,12 +831,22 @@ This will remove the CMS account and cannot be undone.`
     }
 
     await logActivity({
-      action: "updated_society",
-      entityType: "society",
-      entityId: editingSociety.id,
+      action:
+        "updated_society",
+
+      entityType:
+        "society",
+
+      entityId:
+        editingSociety.id,
+
       details: {
-        old_name: editingSociety.name,
-        old_code: editingSociety.code,
+        old_name:
+          editingSociety.name,
+
+        old_code:
+          editingSociety.code,
+
         name,
         code,
       },
@@ -679,16 +865,23 @@ This will remove the CMS account and cannot be undone.`
     ]);
   }
 
-  async function deleteSociety(society) {
+  async function deleteSociety(
+    society
+  ) {
     setError("");
     setSuccess("");
 
-    const assignedUsers = users.filter(
-      (user) =>
-        user.society_id === society.id
-    );
+    const assignedUsers =
+      users.filter(
+        (user) =>
+          user.society_id ===
+          society.id
+      );
 
-    if (assignedUsers.length > 0) {
+    if (
+      assignedUsers.length >
+      0
+    ) {
       setError(
         `Cannot delete ${society.name}. ` +
           `${assignedUsers.length} CMS user${
@@ -701,25 +894,33 @@ This will remove the CMS account and cannot be undone.`
       return;
     }
 
-    const confirmed = window.confirm(
-      `Permanently delete ${society.name} (${society.code})?
+    const confirmed =
+      window.confirm(
+        `Permanently delete ${society.name} (${society.code})?
 
 This action cannot be undone.`
-    );
+      );
 
     if (!confirmed) return;
 
-    setDeletingSocietyId(society.id);
+    setDeletingSocietyId(
+      society.id
+    );
 
     const {
-      count: eventCount,
-      error: eventCheckError,
+      count:
+        eventCount,
+      error:
+        eventCheckError,
     } = await supabase
       .from("events")
-      .select("id", {
-        count: "exact",
-        head: true,
-      })
+      .select(
+        "id",
+        {
+          count: "exact",
+          head: true,
+        }
+      )
       .eq(
         "society_id",
         society.id
@@ -738,7 +939,10 @@ This action cannot be undone.`
       return;
     }
 
-    if ((eventCount || 0) > 0) {
+    if (
+      (eventCount || 0) >
+      0
+    ) {
       setError(
         `Cannot delete ${society.name}. ` +
           `${eventCount} event${
@@ -752,7 +956,9 @@ This action cannot be undone.`
       return;
     }
 
-    const { error } = await supabase
+    const {
+      error,
+    } = await supabase
       .from("societies")
       .delete()
       .eq(
@@ -772,19 +978,31 @@ This action cannot be undone.`
     }
 
     await logActivity({
-      action: "deleted_society",
-      entityType: "society",
-      entityId: society.id,
+      action:
+        "deleted_society",
+
+      entityType:
+        "society",
+
+      entityId:
+        society.id,
+
       details: {
-        name: society.name,
-        code: society.code,
+        name:
+          society.name,
+
+        code:
+          society.code,
+
         description:
-          society.description || null,
+          society.description ||
+          null,
       },
     });
 
     if (
-      editingSociety?.id === society.id
+      editingSociety?.id ===
+      society.id
     ) {
       setEditingSociety(null);
     }
@@ -801,23 +1019,33 @@ This action cannot be undone.`
     ]);
   }
 
-  async function toggleUserStatus(user) {
+  async function toggleUserStatus(
+    user
+  ) {
     setError("");
     setSuccess("");
 
-    if (user.role === "principal") {
+    if (
+      user.role ===
+      "principal"
+    ) {
       setError(
         "The Principal account cannot be disabled."
       );
       return;
     }
 
-    const { error } = await supabase
+    const {
+      error,
+    } = await supabase
       .from("profiles")
       .update({
-        is_active: !user.is_active,
+        is_active:
+          !user.is_active,
+
         updated_at:
-          new Date().toISOString(),
+          new Date()
+            .toISOString(),
       })
       .eq(
         "id",
@@ -834,25 +1062,38 @@ This action cannot be undone.`
     }
 
     await logActivity({
-      action: user.is_active
-        ? "disabled_user"
-        : "activated_user",
-      entityType: "user",
-      entityId: user.id,
+      action:
+        user.is_active
+          ? "disabled_user"
+          : "activated_user",
+
+      entityType:
+        "user",
+
+      entityId:
+        user.id,
+
       details: {
-        full_name: user.full_name,
-        email: user.email,
-        role: user.role,
+        full_name:
+          user.full_name,
+
+        email:
+          user.email,
+
+        role:
+          user.role,
       },
     });
 
     setSuccess(
       user.is_active
         ? `${
-            user.full_name || "User"
+            user.full_name ||
+            "User"
           } was disabled.`
         : `${
-            user.full_name || "User"
+            user.full_name ||
+            "User"
           } was activated.`
     );
 
@@ -862,7 +1103,8 @@ This action cannot be undone.`
   function getTeachers() {
     return users.filter(
       (user) =>
-        user.role === "teacher" &&
+        user.role ===
+          "teacher" &&
         user.is_active
     );
   }
@@ -873,17 +1115,26 @@ This action cannot be undone.`
   ) {
     if (!teacherId) return;
 
-    const teacher = users.find(
-      (user) =>
-        user.id === teacherId
-    );
+    const teacher =
+      users.find(
+        (user) =>
+          user.id ===
+          teacherId
+      );
 
-    const society = societies.find(
-      (item) =>
-        item.id === societyId
-    );
+    const society =
+      societies.find(
+        (item) =>
+          item.id ===
+          societyId
+      );
 
-    if (!teacher || !society) return;
+    if (
+      !teacher ||
+      !society
+    ) {
+      return;
+    }
 
     setAssigningTeacherId(
       teacherId
@@ -892,12 +1143,17 @@ This action cannot be undone.`
     setError("");
     setSuccess("");
 
-    const { error } = await supabase
+    const {
+      error,
+    } = await supabase
       .from("profiles")
       .update({
-        society_id: societyId,
+        society_id:
+          societyId,
+
         updated_at:
-          new Date().toISOString(),
+          new Date()
+            .toISOString(),
       })
       .eq(
         "id",
@@ -920,15 +1176,25 @@ This action cannot be undone.`
     }
 
     await logActivity({
-      action: "assigned_teacher",
-      entityType: "society",
-      entityId: societyId,
+      action:
+        "assigned_teacher",
+
+      entityType:
+        "society",
+
+      entityId:
+        societyId,
+
       details: {
-        teacher_id: teacher.id,
+        teacher_id:
+          teacher.id,
+
         teacher_name:
           teacher.full_name,
+
         society_name:
           society.name,
+
         society_code:
           society.code,
       },
@@ -936,7 +1202,8 @@ This action cannot be undone.`
 
     setSuccess(
       `${
-        teacher.full_name || "Teacher"
+        teacher.full_name ||
+        "Teacher"
       } was assigned to ${society.name}.`
     );
 
@@ -945,62 +1212,77 @@ This action cannot be undone.`
     await fetchUsers();
   }
 
-  const filteredUsers = useMemo(() => {
-    const query = search
-      .trim()
-      .toLowerCase();
+  const filteredUsers =
+    useMemo(() => {
+      const query =
+        search
+          .trim()
+          .toLowerCase();
 
-    return users.filter((user) => {
-      const text = [
-        user.full_name,
-        user.email,
-        user.title,
-        ROLE_LABELS[user.role],
-        user.societies?.name,
-        user.societies?.code,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
+      return users.filter(
+        (user) => {
+          const text = [
+            user.full_name,
+            user.email,
+            user.title,
+            ROLE_LABELS[user.role],
+            user.societies?.name,
+            user.societies?.code,
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
 
-      const matchesSearch =
-        !query ||
-        text.includes(query);
+          const matchesSearch =
+            !query ||
+            text.includes(
+              query
+            );
 
-      const matchesRole =
-        roleFilter === "all" ||
-        user.role === roleFilter;
+          const matchesRole =
+            roleFilter ===
+              "all" ||
+            user.role ===
+              roleFilter;
 
-      return (
-        matchesSearch &&
-        matchesRole
+          return (
+            matchesSearch &&
+            matchesRole
+          );
+        }
       );
-    });
-  }, [
-    users,
-    search,
-    roleFilter,
-  ]);
+    }, [
+      users,
+      search,
+      roleFilter,
+    ]);
 
-  const teacherCount = users.filter(
-    (user) =>
-      user.role === "teacher"
-  ).length;
+  const teacherCount =
+    users.filter(
+      (user) =>
+        user.role ===
+        "teacher"
+    ).length;
 
-  const studentAdminCount = users.filter(
-    (user) =>
-      user.role === "student_admin"
-  ).length;
+  const studentAdminCount =
+    users.filter(
+      (user) =>
+        user.role ===
+        "student_admin"
+    ).length;
 
-  const eventStaffCount = users.filter(
-    (user) =>
-      user.role === "event_staff"
-  ).length;
+  const eventStaffCount =
+    users.filter(
+      (user) =>
+        user.role ===
+        "event_staff"
+    ).length;
 
-  const activeCount = users.filter(
-    (user) =>
-      user.is_active
-  ).length;
+  const activeCount =
+    users.filter(
+      (user) =>
+        user.is_active
+    ).length;
 
   return (
     <AdminLayout>
@@ -1010,11 +1292,14 @@ This action cannot be undone.`
             Administration
           </span>
 
-          <h1>Users & Roles</h1>
+          <h1>
+            Users & Roles
+          </h1>
 
           <p>
-            Manage CMS users, societies, titles and
-            permission assignments.
+            Manage CMS users, societies,
+            titles and individual task
+            permissions.
           </p>
         </div>
 
@@ -1022,7 +1307,9 @@ This action cannot be undone.`
           <button
             type="button"
             className="btn btn-outline"
-            onClick={openSocietyPanel}
+            onClick={
+              openSocietyPanel
+            }
           >
             + Create Society
           </button>
@@ -1030,7 +1317,9 @@ This action cannot be undone.`
           <button
             type="button"
             className="btn btn-primary"
-            onClick={openCreatePanel}
+            onClick={
+              openCreatePanel
+            }
           >
             + Create CMS User
           </button>
@@ -1039,42 +1328,77 @@ This action cannot be undone.`
 
       {error && (
         <div className="admin-inline-error">
-          <span>!</span>
-          <p>{error}</p>
+          <span>
+            !
+          </span>
+
+          <p>
+            {error}
+          </p>
         </div>
       )}
 
       {success && (
         <div className="admin-inline-success">
-          <span>✓</span>
-          <p>{success}</p>
+          <span>
+            ✓
+          </span>
+
+          <p>
+            {success}
+          </p>
         </div>
       )}
 
       <section className="admin-user-stats">
         <div>
-          <span>Total users</span>
-          <strong>{users.length}</strong>
+          <span>
+            Total users
+          </span>
+
+          <strong>
+            {users.length}
+          </strong>
         </div>
 
         <div>
-          <span>Active</span>
-          <strong>{activeCount}</strong>
+          <span>
+            Active
+          </span>
+
+          <strong>
+            {activeCount}
+          </strong>
         </div>
 
         <div>
-          <span>Teachers</span>
-          <strong>{teacherCount}</strong>
+          <span>
+            Teachers
+          </span>
+
+          <strong>
+            {teacherCount}
+          </strong>
         </div>
 
         <div>
-          <span>Student admins</span>
-          <strong>{studentAdminCount}</strong>
+          <span>
+            Student admins
+          </span>
+
+          <strong>
+            {studentAdminCount}
+          </strong>
         </div>
 
         <div>
-          <span>Event staff</span>
-          <strong>{eventStaffCount}</strong>
+          <span>
+            Event staff
+          </span>
+
+          <strong>
+            {eventStaffCount}
+          </strong>
         </div>
       </section>
 
@@ -1089,120 +1413,154 @@ This action cannot be undone.`
           </h2>
         </div>
 
-        {societies.map((society) => {
-          const teacher = users.find(
-            (user) =>
-              user.role === "teacher" &&
-              user.society_id === society.id
-          );
+        {societies.map(
+          (society) => {
+            const teacher =
+              users.find(
+                (user) =>
+                  user.role ===
+                    "teacher" &&
+                  user.society_id ===
+                    society.id
+              );
 
-          const deleting =
-            deletingSocietyId === society.id;
+            const deleting =
+              deletingSocietyId ===
+              society.id;
 
-          return (
-            <article
-              key={society.id}
-              className="admin-society-row"
-            >
-              <div className="admin-society-info">
-                <span className="admin-society-mark">
-                  {society.code}
-                </span>
+            return (
+              <article
+                key={
+                  society.id
+                }
+                className="admin-society-row"
+              >
+                <div className="admin-society-info">
+                  <span className="admin-society-mark">
+                    {
+                      society.code
+                    }
+                  </span>
 
-                <div>
-                  <h3>
-                    {society.name}
+                  <div>
+                    <h3>
+                      {
+                        society.name
+                      }
 
-                    <span className="admin-society-code">
-                      {society.code}
-                    </span>
-                  </h3>
+                      <span className="admin-society-code">
+                        {
+                          society.code
+                        }
+                      </span>
+                    </h3>
 
-                  <p>
-                    {teacher
-                      ? `Teacher-in-Charge: ${teacher.full_name}`
-                      : "No Teacher-in-Charge assigned"}
-                  </p>
+                    <p>
+                      {teacher
+                        ? `Teacher-in-Charge: ${teacher.full_name}`
+                        : "No Teacher-in-Charge assigned"}
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="admin-society-assignment admin-society-actions">
-                <select
-                  value={
-                    teacher?.id || ""
-                  }
-                  disabled={
-                    assigningTeacherId !== null ||
-                    deleting
-                  }
-                  onChange={(event) =>
-                    assignTeacherToSociety(
-                      event.target.value,
-                      society.id
-                    )
-                  }
-                >
-                  <option value="">
-                    Select Teacher
-                  </option>
+                <div className="admin-society-assignment admin-society-actions">
+                  <select
+                    value={
+                      teacher?.id ||
+                      ""
+                    }
+                    disabled={
+                      assigningTeacherId !==
+                        null ||
+                      deleting
+                    }
+                    onChange={(
+                      event
+                    ) =>
+                      assignTeacherToSociety(
+                        event.target
+                          .value,
+                        society.id
+                      )
+                    }
+                  >
+                    <option value="">
+                      Select Teacher
+                    </option>
 
-                  {getTeachers().map(
-                    (item) => (
-                      <option
-                        key={item.id}
-                        value={item.id}
-                      >
-                        {item.full_name ||
-                          item.email}
-                      </option>
-                    )
-                  )}
-                </select>
+                    {getTeachers().map(
+                      (item) => (
+                        <option
+                          key={
+                            item.id
+                          }
+                          value={
+                            item.id
+                          }
+                        >
+                          {item.full_name ||
+                            item.email}
+                        </option>
+                      )
+                    )}
+                  </select>
 
-                <button
-                  type="button"
-                  className="admin-action-button"
-                  disabled={deleting}
-                  onClick={() =>
-                    openEditSociety(
-                      society
-                    )
-                  }
-                >
-                  Edit
-                </button>
+                  <button
+                    type="button"
+                    className="admin-action-button"
+                    disabled={
+                      deleting
+                    }
+                    onClick={() =>
+                      openEditSociety(
+                        society
+                      )
+                    }
+                  >
+                    Edit
+                  </button>
 
-                <button
-                  type="button"
-                  className="admin-action-button danger"
-                  disabled={deleting}
-                  onClick={() =>
-                    deleteSociety(
-                      society
-                    )
-                  }
-                >
-                  {deleting
-                    ? "Deleting..."
-                    : "Delete"}
-                </button>
-              </div>
-            </article>
-          );
-        })}
+                  <button
+                    type="button"
+                    className="admin-action-button danger"
+                    disabled={
+                      deleting
+                    }
+                    onClick={() =>
+                      deleteSociety(
+                        society
+                      )
+                    }
+                  >
+                    {deleting
+                      ? "Deleting..."
+                      : "Delete"}
+                  </button>
+                </div>
+              </article>
+            );
+          }
+        )}
       </section>
 
       <section className="admin-users-panel">
         <div className="admin-users-toolbar">
           <div className="admin-events-search">
-            <span>⌕</span>
+            <span>
+              ⌕
+            </span>
 
             <input
               type="search"
-              value={search}
-              onChange={(event) =>
+              value={
+                search
+              }
+              onChange={(
+                event
+              ) =>
                 setSearch(
-                  event.target.value
+                  event.target
+                    .value
                 )
               }
               placeholder="Search users..."
@@ -1210,10 +1568,15 @@ This action cannot be undone.`
           </div>
 
           <select
-            value={roleFilter}
-            onChange={(event) =>
+            value={
+              roleFilter
+            }
+            onChange={(
+              event
+            ) =>
               setRoleFilter(
-                event.target.value
+                event.target
+                  .value
               )
             }
           >
@@ -1247,142 +1610,178 @@ This action cannot be undone.`
           <LoadingState
             label="Loading users..."
           />
-        ) : filteredUsers.length === 0 ? (
+        ) : filteredUsers.length ===
+          0 ? (
           <EmptyState
             title="No users found"
             description="No users match the current filters."
           />
         ) : (
           <div className="admin-users-list">
-            {filteredUsers.map((user) => {
-              const deleting =
-                deletingUserId === user.id;
+            {filteredUsers.map(
+              (user) => {
+                const deleting =
+                  deletingUserId ===
+                  user.id;
 
-              return (
-                <article
-                  key={user.id}
-                  className="admin-user-row"
-                >
-                  <div className="admin-user-avatar">
-                    {getInitials(
-                      user.full_name
-                    )}
-                  </div>
+                const overrideCount =
+                  Object.keys(
+                    user.permission_overrides ||
+                      {}
+                  ).length;
 
-                  <div className="admin-user-main">
-                    <div className="admin-user-heading">
-                      <h3>
-                        {user.full_name}
-                      </h3>
-
-                      <span
-                        className={
-                          user.is_active
-                            ? "admin-user-status active"
-                            : "admin-user-status disabled"
-                        }
-                      >
-                        {user.is_active
-                          ? "Active"
-                          : "Disabled"}
-                      </span>
-                    </div>
-
-                    <div className="admin-user-role">
-                      <strong>
-                        {ROLE_LABELS[
-                          user.role
-                        ] || user.role}
-                      </strong>
-
-                      {user.title && (
-                        <span>
-                          {user.title}
-                        </span>
+                return (
+                  <article
+                    key={
+                      user.id
+                    }
+                    className="admin-user-row"
+                  >
+                    <div className="admin-user-avatar">
+                      {getInitials(
+                        user.full_name
                       )}
                     </div>
 
-                    <div className="admin-user-meta">
-                      <span>
-                        {user.email}
-                      </span>
-
-                      {user.societies && (
-                        <span>
+                    <div className="admin-user-main">
+                      <div className="admin-user-heading">
+                        <h3>
                           {
-                            user.societies
-                              .code
+                            user.full_name
                           }
-                          {" — "}
-                          {
-                            user.societies
-                              .name
-                          }
-                        </span>
-                      )}
+                        </h3>
 
-                      {Object.keys(
-                        user.permission_overrides ||
-                          {}
-                      ).length > 0 && (
-                        <span>
-                          Custom permissions
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="admin-user-actions">
-                    <button
-                      type="button"
-                      className="admin-action-button"
-                      disabled={deleting}
-                      onClick={() =>
-                        openEditUser(user)
-                      }
-                    >
-                      Edit
-                    </button>
-
-                    {user.role !== "principal" && (
-                      <>
-                        <button
-                          type="button"
+                        <span
                           className={
                             user.is_active
-                              ? "admin-action-button danger"
-                              : "admin-action-button"
-                          }
-                          disabled={deleting}
-                          onClick={() =>
-                            toggleUserStatus(
-                              user
-                            )
+                              ? "admin-user-status active"
+                              : "admin-user-status disabled"
                           }
                         >
                           {user.is_active
-                            ? "Disable"
-                            : "Activate"}
-                        </button>
+                            ? "Active"
+                            : "Disabled"}
+                        </span>
+                      </div>
 
-                        <button
-                          type="button"
-                          className="admin-action-button danger"
-                          disabled={deleting}
-                          onClick={() =>
-                            deleteUser(user)
+                      <div className="admin-user-role">
+                        <strong>
+                          {ROLE_LABELS[
+                            user.role
+                          ] ||
+                            user.role}
+                        </strong>
+
+                        {user.title && (
+                          <span>
+                            {
+                              user.title
+                            }
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="admin-user-meta">
+                        <span>
+                          {
+                            user.email
                           }
-                        >
-                          {deleting
-                            ? "Deleting..."
-                            : "Delete"}
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </article>
-              );
-            })}
+                        </span>
+
+                        {user.societies && (
+                          <span>
+                            {
+                              user
+                                .societies
+                                .code
+                            }
+
+                            {" — "}
+
+                            {
+                              user
+                                .societies
+                                .name
+                            }
+                          </span>
+                        )}
+
+                        {overrideCount >
+                          0 && (
+                          <span>
+                            {overrideCount} custom{" "}
+                            {overrideCount ===
+                            1
+                              ? "permission"
+                              : "permissions"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="admin-user-actions">
+                      <button
+                        type="button"
+                        className="admin-action-button"
+                        disabled={
+                          deleting
+                        }
+                        onClick={() =>
+                          openEditUser(
+                            user
+                          )
+                        }
+                      >
+                        Edit
+                      </button>
+
+                      {user.role !==
+                        "principal" && (
+                        <>
+                          <button
+                            type="button"
+                            className={
+                              user.is_active
+                                ? "admin-action-button danger"
+                                : "admin-action-button"
+                            }
+                            disabled={
+                              deleting
+                            }
+                            onClick={() =>
+                              toggleUserStatus(
+                                user
+                              )
+                            }
+                          >
+                            {user.is_active
+                              ? "Disable"
+                              : "Activate"}
+                          </button>
+
+                          <button
+                            type="button"
+                            className="admin-action-button danger"
+                            disabled={
+                              deleting
+                            }
+                            onClick={() =>
+                              deleteUser(
+                                user
+                              )
+                            }
+                          >
+                            {deleting
+                              ? "Deleting..."
+                              : "Delete"}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </article>
+                );
+              }
+            )}
           </div>
         )}
       </section>
@@ -1393,18 +1792,30 @@ This action cannot be undone.`
             <ModalHeader
               eyebrow="Authorized account"
               title="Create CMS User"
-              onClose={closeCreatePanel}
-              disabled={saving}
+              onClose={
+                closeCreatePanel
+              }
+              disabled={
+                saving
+              }
             />
 
             <form
               className="admin-event-form"
-              onSubmit={handleSubmit}
+              onSubmit={
+                handleSubmit
+              }
             >
               <UserFields
-                data={formData}
-                onChange={handleChange}
-                societies={societies}
+                data={
+                  formData
+                }
+                onChange={
+                  handleChange
+                }
+                societies={
+                  societies
+                }
                 passwordRequired
                 onPermissionChange={(
                   permission,
@@ -1416,13 +1827,22 @@ This action cannot be undone.`
                     value
                   )
                 }
+                onPermissionReset={() =>
+                  resetPermissionOverrides(
+                    setFormData
+                  )
+                }
               />
 
               <ModalActions
-                saving={saving}
+                saving={
+                  saving
+                }
                 saveText="Create account"
                 savingText="Creating..."
-                onCancel={closeCreatePanel}
+                onCancel={
+                  closeCreatePanel
+                }
               />
             </form>
           </section>
@@ -1435,21 +1855,33 @@ This action cannot be undone.`
             <ModalHeader
               eyebrow="Account administration"
               title="Edit CMS User"
-              onClose={closeEditUser}
-              disabled={userUpdating}
+              onClose={
+                closeEditUser
+              }
+              disabled={
+                userUpdating
+              }
             />
 
             <form
               className="admin-event-form"
-              onSubmit={handleUpdateUser}
+              onSubmit={
+                handleUpdateUser
+              }
             >
               <UserFields
-                data={editUserForm}
+                data={
+                  editUserForm
+                }
                 onChange={
                   handleEditUserChange
                 }
-                societies={societies}
-                passwordRequired={false}
+                societies={
+                  societies
+                }
+                passwordRequired={
+                  false
+                }
                 onPermissionChange={(
                   permission,
                   value
@@ -1460,13 +1892,22 @@ This action cannot be undone.`
                     value
                   )
                 }
+                onPermissionReset={() =>
+                  resetPermissionOverrides(
+                    setEditUserForm
+                  )
+                }
               />
 
               <ModalActions
-                saving={userUpdating}
+                saving={
+                  userUpdating
+                }
                 saveText="Save changes"
                 savingText="Saving..."
-                onCancel={closeEditUser}
+                onCancel={
+                  closeEditUser
+                }
               />
             </form>
           </section>
@@ -1477,17 +1918,27 @@ This action cannot be undone.`
         <SocietyModal
           title="Create Society"
           eyebrow="School organization"
-          name={societyName}
-          code={societyCode}
+          name={
+            societyName
+          }
+          code={
+            societyCode
+          }
           description={
             societyDescription
           }
-          setName={setSocietyName}
-          setCode={setSocietyCode}
+          setName={
+            setSocietyName
+          }
+          setCode={
+            setSocietyCode
+          }
           setDescription={
             setSocietyDescription
           }
-          saving={societySaving}
+          saving={
+            societySaving
+          }
           onSubmit={
             handleCreateSociety
           }
@@ -1502,8 +1953,12 @@ This action cannot be undone.`
         <SocietyModal
           title="Edit Society"
           eyebrow="Society administration"
-          name={editSocietyName}
-          code={editSocietyCode}
+          name={
+            editSocietyName
+          }
+          code={
+            editSocietyCode
+          }
           description={
             editSocietyDescription
           }
@@ -1516,7 +1971,9 @@ This action cannot be undone.`
           setDescription={
             setEditSocietyDescription
           }
-          saving={societyUpdating}
+          saving={
+            societyUpdating
+          }
           onSubmit={
             handleUpdateSociety
           }
@@ -1536,6 +1993,7 @@ function UserFields({
   societies,
   passwordRequired,
   onPermissionChange,
+  onPermissionReset,
 }) {
   const requiresSociety =
     data.role === "teacher" ||
@@ -1550,8 +2008,12 @@ function UserFields({
 
         <input
           name="fullName"
-          value={data.fullName}
-          onChange={onChange}
+          value={
+            data.fullName
+          }
+          onChange={
+            onChange
+          }
           required
         />
       </div>
@@ -1564,8 +2026,12 @@ function UserFields({
         <input
           name="email"
           type="email"
-          value={data.email}
-          onChange={onChange}
+          value={
+            data.email
+          }
+          onChange={
+            onChange
+          }
           required
         />
       </div>
@@ -1577,8 +2043,12 @@ function UserFields({
 
         <select
           name="role"
-          value={data.role}
-          onChange={onChange}
+          value={
+            data.role
+          }
+          onChange={
+            onChange
+          }
         >
           <option value="student_admin">
             Student Admin
@@ -1596,7 +2066,8 @@ function UserFields({
             Vice Principal
           </option>
 
-          {data.role === "principal" && (
+          {data.role ===
+            "principal" && (
             <option value="principal">
               Principal
             </option>
@@ -1611,8 +2082,13 @@ function UserFields({
 
         <input
           name="title"
-          value={data.title || ""}
-          onChange={onChange}
+          value={
+            data.title ||
+            ""
+          }
+          onChange={
+            onChange
+          }
           placeholder="e.g. Sports Coordinator"
         />
       </div>
@@ -1625,8 +2101,12 @@ function UserFields({
 
           <select
             name="societyId"
-            value={data.societyId}
-            onChange={onChange}
+            value={
+              data.societyId
+            }
+            onChange={
+              onChange
+            }
             required
           >
             <option value="">
@@ -1636,8 +2116,12 @@ function UserFields({
             {societies.map(
               (society) => (
                 <option
-                  key={society.id}
-                  value={society.id}
+                  key={
+                    society.id
+                  }
+                  value={
+                    society.id
+                  }
                 >
                   {society.code
                     ? `${society.code} — ${society.name}`
@@ -1649,7 +2133,8 @@ function UserFields({
         </div>
       )}
 
-      {data.role !== "principal" && (
+      {data.role !==
+        "principal" && (
         <PermissionEditor
           overrides={
             data.permissionOverrides ||
@@ -1657,6 +2142,9 @@ function UserFields({
           }
           onChange={
             onPermissionChange
+          }
+          onReset={
+            onPermissionReset
           }
         />
       )}
@@ -1671,10 +2159,16 @@ function UserFields({
         <input
           name="password"
           type="password"
-          value={data.password}
-          onChange={onChange}
+          value={
+            data.password
+          }
+          onChange={
+            onChange
+          }
           minLength="8"
-          required={passwordRequired}
+          required={
+            passwordRequired
+          }
           placeholder={
             passwordRequired
               ? "Minimum 8 characters"
@@ -1690,23 +2184,56 @@ function UserFields({
 function PermissionEditor({
   overrides,
   onChange,
+  onReset,
 }) {
+  const overrideCount =
+    Object.keys(
+      overrides ||
+      {}
+    ).length;
+
   return (
     <section className="admin-permission-editor">
       <div className="admin-permission-editor-header">
+        <div>
+          <span>
+            Individual permissions
+          </span>
+
+          <h3>
+            Permission overrides
+          </h3>
+
+          <p>
+            Choose whether each task should
+            follow the selected role, be
+            explicitly allowed or explicitly
+            denied for this account.
+          </p>
+        </div>
+
+        {overrideCount >
+          0 && (
+          <button
+            type="button"
+            className="admin-permission-reset"
+            onClick={
+              onReset
+            }
+          >
+            Reset all
+          </button>
+        )}
+      </div>
+
+      <div className="admin-permission-summary">
         <span>
-          Individual permissions
+          Custom overrides
         </span>
 
-        <h3>
-          Permission overrides
-        </h3>
-
-        <p>
-          Use the role default or grant
-          and deny individual permissions
-          for this account.
-        </p>
+        <strong>
+          {overrideCount}
+        </strong>
       </div>
 
       <div className="admin-permission-list">
@@ -1718,43 +2245,62 @@ function PermissionEditor({
             label,
           ]) => {
             const hasOverride =
-              Object.prototype.hasOwnProperty.call(
-                overrides,
-                permission
-              );
+              Object.prototype
+                .hasOwnProperty
+                .call(
+                  overrides,
+                  permission
+                );
 
-            const value = hasOverride
-              ? overrides[permission]
-                ? "allow"
-                : "deny"
-              : "default";
+            const value =
+              hasOverride
+                ? overrides[
+                    permission
+                  ]
+                  ? "allow"
+                  : "deny"
+                : "default";
 
             return (
               <div
-                key={permission}
-                className="admin-permission-row"
+                key={
+                  permission
+                }
+                className={
+                  `admin-permission-row admin-permission-row--${value}`
+                }
               >
-                <div>
+                <div className="admin-permission-info">
                   <strong>
                     {label}
                   </strong>
 
                   <span>
-                    {value === "default"
+                    {value ===
+                    "default"
                       ? "Uses role default"
-                      : value === "allow"
-                        ? "Individually allowed"
-                        : "Individually denied"}
+                      : value ===
+                          "allow"
+                        ? "Explicitly allowed"
+                        : "Explicitly denied"}
                   </span>
                 </div>
 
                 <select
-                  value={value}
-                  onChange={(event) =>
+                  value={
+                    value
+                  }
+                  onChange={(
+                    event
+                  ) =>
                     onChange(
                       permission,
-                      event.target.value
+                      event.target
+                        .value
                     )
+                  }
+                  aria-label={
+                    `${label} permission`
                   }
                 >
                   <option value="default">
@@ -1796,15 +2342,25 @@ function SocietyModal({
     <div className="admin-user-modal-backdrop">
       <section className="admin-user-modal">
         <ModalHeader
-          eyebrow={eyebrow}
-          title={title}
-          onClose={onClose}
-          disabled={saving}
+          eyebrow={
+            eyebrow
+          }
+          title={
+            title
+          }
+          onClose={
+            onClose
+          }
+          disabled={
+            saving
+          }
         />
 
         <form
           className="admin-event-form"
-          onSubmit={onSubmit}
+          onSubmit={
+            onSubmit
+          }
         >
           <div className="admin-field">
             <label>
@@ -1812,10 +2368,15 @@ function SocietyModal({
             </label>
 
             <input
-              value={name}
-              onChange={(event) =>
+              value={
+                name
+              }
+              onChange={(
+                event
+              ) =>
                 setName(
-                  event.target.value
+                  event.target
+                    .value
                 )
               }
               required
@@ -1828,11 +2389,16 @@ function SocietyModal({
             </label>
 
             <input
-              value={code}
-              onChange={(event) =>
+              value={
+                code
+              }
+              onChange={(
+                event
+              ) =>
                 setCode(
                   cleanSocietyCode(
-                    event.target.value
+                    event.target
+                      .value
                   )
                 )
               }
@@ -1849,20 +2415,31 @@ function SocietyModal({
 
             <textarea
               rows="4"
-              value={description}
-              onChange={(event) =>
+              value={
+                description
+              }
+              onChange={(
+                event
+              ) =>
                 setDescription(
-                  event.target.value
+                  event.target
+                    .value
                 )
               }
             />
           </div>
 
           <ModalActions
-            saving={saving}
-            saveText={saveText}
+            saving={
+              saving
+            }
+            saveText={
+              saveText
+            }
             savingText="Saving..."
-            onCancel={onClose}
+            onCancel={
+              onClose
+            }
           />
         </form>
       </section>
@@ -1891,9 +2468,15 @@ function ModalHeader({
       <button
         type="button"
         className="admin-editor-close"
-        onClick={onClose}
-        disabled={disabled}
-        aria-label={`Close ${title}`}
+        onClick={
+          onClose
+        }
+        disabled={
+          disabled
+        }
+        aria-label={
+          `Close ${title}`
+        }
       >
         ×
       </button>
@@ -1912,22 +2495,30 @@ function ModalActions({
       <button
         type="submit"
         className="btn btn-primary"
-        disabled={saving}
+        disabled={
+          saving
+        }
       >
         {saving
           ? savingText
           : saveText}
 
         {!saving && (
-          <span>→</span>
+          <span>
+            →
+          </span>
         )}
       </button>
 
       <button
         type="button"
         className="btn btn-outline"
-        onClick={onCancel}
-        disabled={saving}
+        onClick={
+          onCancel
+        }
+        disabled={
+          saving
+        }
       >
         Cancel
       </button>
@@ -1935,17 +2526,24 @@ function ModalActions({
   );
 }
 
-function cleanSocietyCode(value) {
+function cleanSocietyCode(
+  value
+) {
   return value
     .toUpperCase()
     .replace(
       /[^A-Z0-9]/g,
       ""
     )
-    .slice(0, 6);
+    .slice(
+      0,
+      6
+    );
 }
 
-function getInitials(name) {
+function getInitials(
+  name
+) {
   if (!name) {
     return "?";
   }
@@ -1953,11 +2551,15 @@ function getInitials(name) {
   return name
     .trim()
     .split(/\s+/)
-    .slice(0, 2)
-    .map((part) =>
-      part
-        .charAt(0)
-        .toUpperCase()
+    .slice(
+      0,
+      2
+    )
+    .map(
+      (part) =>
+        part
+          .charAt(0)
+          .toUpperCase()
     )
     .join("");
 }

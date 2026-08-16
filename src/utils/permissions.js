@@ -86,13 +86,21 @@ export const permissions = {
   },
 };
 
-export function can(role, permission) {
-  if (!role || !permission) {
+export function can(
+  role,
+  permission
+) {
+  if (
+    !role ||
+    !permission
+  ) {
     return false;
   }
 
   return Boolean(
-    permissions[role]?.[permission]
+    permissions[role]?.[
+      permission
+    ]
   );
 }
 
@@ -101,22 +109,31 @@ export function canUser(
   permission,
   overrides = {}
 ) {
-  if (!role || !permission) {
+  if (
+    !role ||
+    !permission
+  ) {
     return false;
   }
 
   if (
-    Object.prototype.hasOwnProperty.call(
-      overrides,
-      permission
-    )
+    Object.prototype
+      .hasOwnProperty
+      .call(
+        overrides,
+        permission
+      )
   ) {
     return Boolean(
-      overrides[permission]
+      overrides[
+        permission
+      ]
     );
   }
 
   return Boolean(
-    permissions[role]?.[permission]
+    permissions[role]?.[
+      permission
+    ]
   );
 }

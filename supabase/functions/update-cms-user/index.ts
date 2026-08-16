@@ -6,7 +6,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-
 const allowedRoles = [
   "principal",
   "vice_principal",
@@ -15,8 +14,8 @@ const allowedRoles = [
   "event_staff",
 ];
 
-
 const allowedPermissionOverrides = [
+  "manageUsers",
   "manageEvents",
   "publishEvents",
   "manageAnnouncements",
@@ -25,9 +24,9 @@ const allowedPermissionOverrides = [
   "manageLiveUpdates",
   "approveEvents",
   "viewAnalytics",
+  "viewLogs",
   "checkInAttendees",
 ];
-
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -36,11 +35,11 @@ Deno.serve(async (req: Request) => {
     });
   }
 
-
   try {
     const authHeader =
-      req.headers.get("Authorization");
-
+      req.headers.get(
+        "Authorization"
+      );
 
     if (!authHeader) {
       return response(
@@ -52,18 +51,20 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     const supabaseUrl =
-      Deno.env.get("SUPABASE_URL");
+      Deno.env.get(
+        "SUPABASE_URL"
+      );
 
     const anonKey =
-      Deno.env.get("SUPABASE_ANON_KEY");
+      Deno.env.get(
+        "SUPABASE_ANON_KEY"
+      );
 
     const serviceRoleKey =
       Deno.env.get(
         "SUPABASE_SERVICE_ROLE_KEY"
       );
-
 
     if (
       !supabaseUrl ||
@@ -74,7 +75,6 @@ Deno.serve(async (req: Request) => {
         "Missing Supabase environment variables."
       );
     }
-
 
     const callerClient =
       createClient(
@@ -90,7 +90,6 @@ Deno.serve(async (req: Request) => {
         }
       );
 
-
     const {
       data: {
         user: caller,
@@ -101,7 +100,6 @@ Deno.serve(async (req: Request) => {
       await callerClient
         .auth
         .getUser();
-
 
     if (
       callerError ||
@@ -115,7 +113,6 @@ Deno.serve(async (req: Request) => {
         401
       );
     }
-
 
     const {
       data:
@@ -135,7 +132,6 @@ Deno.serve(async (req: Request) => {
         )
         .single();
 
-
     if (
       callerProfileError ||
       !callerProfile ||
@@ -152,7 +148,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     const {
       userId,
       fullName,
@@ -165,7 +160,6 @@ Deno.serve(async (req: Request) => {
       permissionOverrides,
     } =
       await req.json();
-
 
     if (
       !userId ||
@@ -182,21 +176,23 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     const cleanFullName =
-      String(fullName)
-        .trim();
+      String(
+        fullName
+      ).trim();
 
     const cleanEmail =
-      String(email)
+      String(
+        email
+      )
         .trim()
         .toLowerCase();
 
     const cleanTitle =
-      typeof title === "string"
+      typeof title ===
+      "string"
         ? title.trim()
         : "";
-
 
     if (
       !cleanFullName ||
@@ -210,7 +206,6 @@ Deno.serve(async (req: Request) => {
         400
       );
     }
-
 
     if (
       !allowedRoles.includes(
@@ -226,10 +221,10 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     if (
       password &&
-      password.length < 8
+      password.length <
+        8
     ) {
       return response(
         {
@@ -240,12 +235,11 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     const requiresSociety =
-      role === "teacher" ||
+      role ===
+        "teacher" ||
       role ===
         "student_admin";
-
 
     if (
       requiresSociety &&
@@ -260,10 +254,11 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     const safePermissionOverrides:
-      Record<string, boolean> = {};
-
+      Record<
+        string,
+        boolean
+      > = {};
 
     if (
       permissionOverrides !==
@@ -287,7 +282,6 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-
       for (
         const [
           permission,
@@ -297,14 +291,12 @@ Deno.serve(async (req: Request) => {
         )
       ) {
         if (
-          !allowedPermissionOverrides
-            .includes(
-              permission
-            )
+          !allowedPermissionOverrides.includes(
+            permission
+          )
         ) {
           continue;
         }
-
 
         if (
           typeof value !==
@@ -319,13 +311,11 @@ Deno.serve(async (req: Request) => {
           );
         }
 
-
         safePermissionOverrides[
           permission
         ] = value;
       }
     }
-
 
     const adminClient =
       createClient(
@@ -335,12 +325,12 @@ Deno.serve(async (req: Request) => {
           auth: {
             autoRefreshToken:
               false,
+
             persistSession:
               false,
           },
         }
       );
-
 
     const {
       data:
@@ -366,7 +356,6 @@ Deno.serve(async (req: Request) => {
         )
         .single();
 
-
     if (
       targetProfileError ||
       !targetProfile
@@ -380,11 +369,11 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     if (
       targetProfile.role ===
         "principal" &&
-      role !== "principal"
+      role !==
+        "principal"
     ) {
       return response(
         {
@@ -395,11 +384,11 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     if (
       targetProfile.role !==
         "principal" &&
-      role === "principal"
+      role ===
+        "principal"
     ) {
       return response(
         {
@@ -410,11 +399,11 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     if (
       targetProfile.role ===
         "principal" &&
-      isActive === false
+      isActive ===
+        false
     ) {
       return response(
         {
@@ -424,7 +413,6 @@ Deno.serve(async (req: Request) => {
         400
       );
     }
-
 
     const authUpdates: {
       email?: string;
@@ -442,12 +430,10 @@ Deno.serve(async (req: Request) => {
       },
     };
 
-
     if (password) {
       authUpdates.password =
         password;
     }
-
 
     const {
       error:
@@ -461,7 +447,6 @@ Deno.serve(async (req: Request) => {
           authUpdates
         );
 
-
     if (
       authUpdateError
     ) {
@@ -474,16 +459,15 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     const finalPermissionOverrides =
-      role === "principal"
+      role ===
+      "principal"
         ? {}
         : safePermissionOverrides;
 
-
     const finalIsActive =
       targetProfile.role ===
-        "principal"
+      "principal"
         ? true
         : typeof isActive ===
             "boolean"
@@ -491,6 +475,10 @@ Deno.serve(async (req: Request) => {
           : targetProfile
               .is_active;
 
+    const finalSocietyId =
+      requiresSociety
+        ? societyId
+        : null;
 
     const {
       error:
@@ -515,9 +503,7 @@ Deno.serve(async (req: Request) => {
             finalPermissionOverrides,
 
           society_id:
-            requiresSociety
-              ? societyId
-              : null,
+            finalSocietyId,
 
           is_active:
             finalIsActive,
@@ -530,7 +516,6 @@ Deno.serve(async (req: Request) => {
           "id",
           userId
         );
-
 
     if (
       profileUpdateError
@@ -548,13 +533,14 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     const {
       error:
         logError,
     } =
       await adminClient
-        .from("activity_logs")
+        .from(
+          "activity_logs"
+        )
         .insert({
           user_id:
             caller.id,
@@ -582,9 +568,7 @@ Deno.serve(async (req: Request) => {
               null,
 
             society_id:
-              requiresSociety
-                ? societyId
-                : null,
+              finalSocietyId,
 
             is_active:
               finalIsActive,
@@ -615,7 +599,6 @@ Deno.serve(async (req: Request) => {
           },
         });
 
-
     if (logError) {
       console.error(
         "Could not save activity log:",
@@ -623,10 +606,10 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     return response(
       {
-        success: true,
+        success:
+          true,
 
         user: {
           id:
@@ -645,9 +628,7 @@ Deno.serve(async (req: Request) => {
             null,
 
           societyId:
-            requiresSociety
-              ? societyId
-              : null,
+            finalSocietyId,
 
           permissionOverrides:
             finalPermissionOverrides,
@@ -658,10 +639,10 @@ Deno.serve(async (req: Request) => {
       },
       200
     );
-
   } catch (error) {
-    console.error(error);
-
+    console.error(
+      error
+    );
 
     return response(
       {
@@ -674,7 +655,6 @@ Deno.serve(async (req: Request) => {
     );
   }
 });
-
 
 function response(
   body: unknown,

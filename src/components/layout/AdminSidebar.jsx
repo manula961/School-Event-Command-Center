@@ -29,6 +29,28 @@ function AdminSidebar() {
     profile?.permission_overrides ||
     {};
 
+  const hasDashboardAccess =
+    role !== "event_staff" &&
+    [
+      "manageEvents",
+      "publishEvents",
+      "approveEvents",
+      "manageAnnouncements",
+      "manageRegistrations",
+      "manageMedia",
+      "manageLiveUpdates",
+      "viewAnalytics",
+      "manageUsers",
+      "viewLogs",
+      "checkInAttendees",
+    ].some((permission) =>
+      canUser(
+        role,
+        permission,
+        overrides
+      )
+    );
+
   const links = [
     {
       to: "/admin",
@@ -36,7 +58,7 @@ function AdminSidebar() {
       label: "Dashboard",
       icon: "⌂",
       visible:
-        role !== "event_staff",
+        hasDashboardAccess,
     },
     {
       to: "/admin/events",
@@ -132,14 +154,13 @@ function AdminSidebar() {
 
   const visibleLinks =
     links.filter(
-      (item) => item.visible
+      (item) =>
+        item.visible
     );
 
   return (
     <aside className="admin-sidebar-new">
-
       <div className="admin-sidebar-top">
-
         <Link
           to="/"
           className="admin-brand"
@@ -161,7 +182,6 @@ function AdminSidebar() {
         </Link>
 
         <div className="admin-sidebar-user">
-
           <strong>
             {profile?.full_name ||
               "CMS User"}
@@ -175,7 +195,9 @@ function AdminSidebar() {
 
           {profile?.societies?.name && (
             <small>
-              {profile.societies.code
+              {profile
+                .societies
+                .code
                 ? `${profile.societies.code} — `
                 : ""}
 
@@ -186,7 +208,6 @@ function AdminSidebar() {
               }
             </small>
           )}
-
         </div>
 
         <div className="admin-sidebar-section-label">
@@ -196,13 +217,18 @@ function AdminSidebar() {
         </div>
 
         <nav className="admin-navigation">
-
           {visibleLinks.map(
             (item) => (
               <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
+                key={
+                  item.to
+                }
+                to={
+                  item.to
+                }
+                end={
+                  item.end
+                }
                 className={({
                   isActive,
                 }) =>
@@ -226,13 +252,10 @@ function AdminSidebar() {
               </NavLink>
             )
           )}
-
         </nav>
-
       </div>
 
       <div className="admin-sidebar-bottom">
-
         <Link
           to="/"
           className="admin-public-link"
@@ -247,7 +270,9 @@ function AdminSidebar() {
         <button
           type="button"
           className="admin-logout"
-          onClick={handleLogout}
+          onClick={
+            handleLogout
+          }
         >
           <span aria-hidden="true">
             ↗
@@ -255,9 +280,7 @@ function AdminSidebar() {
 
           Log out
         </button>
-
       </div>
-
     </aside>
   );
 }

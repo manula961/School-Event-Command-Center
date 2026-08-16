@@ -263,7 +263,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <PermissionRoute
-                  roles={["principal"]}
+                  roles={CMS_ROLES}
                   permission="manageUsers"
                 >
                   <AdminUsers />
@@ -277,7 +277,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <PermissionRoute
-                  roles={["principal"]}
+                  roles={CMS_ROLES}
                   permission="viewLogs"
                 >
                   <AdminLogs />

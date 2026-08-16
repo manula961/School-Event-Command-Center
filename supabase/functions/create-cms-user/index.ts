@@ -6,7 +6,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-
 const allowedRoles = [
   "vice_principal",
   "teacher",
@@ -14,8 +13,8 @@ const allowedRoles = [
   "event_staff",
 ];
 
-
 const allowedPermissionOverrides = [
+  "manageUsers",
   "manageEvents",
   "publishEvents",
   "manageAnnouncements",
@@ -24,9 +23,9 @@ const allowedPermissionOverrides = [
   "manageLiveUpdates",
   "approveEvents",
   "viewAnalytics",
+  "viewLogs",
   "checkInAttendees",
 ];
-
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -39,13 +38,11 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-
   try {
     const authHeader =
       req.headers.get(
         "Authorization"
       );
-
 
     if (!authHeader) {
       return response(
@@ -56,7 +53,6 @@ Deno.serve(async (req: Request) => {
         401
       );
     }
-
 
     const supabaseUrl =
       Deno.env.get(
@@ -73,7 +69,6 @@ Deno.serve(async (req: Request) => {
         "SUPABASE_SERVICE_ROLE_KEY"
       );
 
-
     if (
       !supabaseUrl ||
       !anonKey ||
@@ -83,7 +78,6 @@ Deno.serve(async (req: Request) => {
         "Missing Supabase environment variables."
       );
     }
-
 
     const callerClient =
       createClient(
@@ -99,7 +93,6 @@ Deno.serve(async (req: Request) => {
         }
       );
 
-
     const {
       data: {
         user:
@@ -111,7 +104,6 @@ Deno.serve(async (req: Request) => {
       await callerClient
         .auth
         .getUser();
-
 
     if (
       callerError ||
@@ -125,7 +117,6 @@ Deno.serve(async (req: Request) => {
         401
       );
     }
-
 
     const {
       data:
@@ -147,7 +138,6 @@ Deno.serve(async (req: Request) => {
         )
         .single();
 
-
     if (
       callerProfileError ||
       !callerProfile ||
@@ -164,10 +154,8 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     const body =
       await req.json();
-
 
     const {
       fullName,
@@ -178,7 +166,6 @@ Deno.serve(async (req: Request) => {
       title,
       permissionOverrides,
     } = body;
-
 
     if (
       !fullName ||
@@ -195,12 +182,10 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     const cleanFullName =
       String(
         fullName
       ).trim();
-
 
     const cleanEmail =
       String(
@@ -209,19 +194,16 @@ Deno.serve(async (req: Request) => {
         .trim()
         .toLowerCase();
 
-
     const cleanRole =
       String(
         role
       ).trim();
-
 
     const cleanTitle =
       typeof title ===
       "string"
         ? title.trim()
         : "";
-
 
     if (
       !cleanFullName ||
@@ -235,7 +217,6 @@ Deno.serve(async (req: Request) => {
         400
       );
     }
-
 
     if (
       String(
@@ -252,7 +233,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     if (
       !allowedRoles.includes(
         cleanRole
@@ -267,13 +247,11 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     const requiresSociety =
       cleanRole ===
         "teacher" ||
       cleanRole ===
         "student_admin";
-
 
     if (
       requiresSociety &&
@@ -288,13 +266,11 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     const safePermissionOverrides:
       Record<
         string,
         boolean
       > = {};
-
 
     if (
       permissionOverrides !==
@@ -318,7 +294,6 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-
       for (
         const [
           permission,
@@ -335,7 +310,6 @@ Deno.serve(async (req: Request) => {
           continue;
         }
 
-
         if (
           typeof value !==
           "boolean"
@@ -349,14 +323,12 @@ Deno.serve(async (req: Request) => {
           );
         }
 
-
         safePermissionOverrides[
           permission
         ] =
           value;
       }
     }
-
 
     const adminClient =
       createClient(
@@ -372,7 +344,6 @@ Deno.serve(async (req: Request) => {
           },
         }
       );
-
 
     const {
       data:
@@ -393,7 +364,6 @@ Deno.serve(async (req: Request) => {
         )
         .maybeSingle();
 
-
     if (
       existingProfileError
     ) {
@@ -401,7 +371,6 @@ Deno.serve(async (req: Request) => {
         "Could not check existing profile:",
         existingProfileError
       );
-
 
       return response(
         {
@@ -411,7 +380,6 @@ Deno.serve(async (req: Request) => {
         500
       );
     }
-
 
     if (
       existingProfile
@@ -424,7 +392,6 @@ Deno.serve(async (req: Request) => {
         400
       );
     }
-
 
     const {
       data:
@@ -453,7 +420,6 @@ Deno.serve(async (req: Request) => {
           },
         });
 
-
     if (
       createUserError ||
       !createdUserData
@@ -463,7 +429,6 @@ Deno.serve(async (req: Request) => {
         "Could not create auth user:",
         createUserError
       );
-
 
       return response(
         {
@@ -476,11 +441,9 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-
     const createdUser =
       createdUserData
         .user;
-
 
     const profilePayload = {
       id:
@@ -515,7 +478,6 @@ Deno.serve(async (req: Request) => {
           .toISOString(),
     };
 
-
     const {
       error:
         profileInsertError,
@@ -532,7 +494,6 @@ Deno.serve(async (req: Request) => {
           }
         );
 
-
     if (
       profileInsertError
     ) {
@@ -540,7 +501,6 @@ Deno.serve(async (req: Request) => {
         "Profile creation failed:",
         profileInsertError
       );
-
 
       const {
         error:
@@ -553,7 +513,6 @@ Deno.serve(async (req: Request) => {
             createdUser.id
           );
 
-
       if (
         cleanupError
       ) {
@@ -562,7 +521,6 @@ Deno.serve(async (req: Request) => {
           cleanupError
         );
       }
-
 
       return response(
         {
@@ -573,7 +531,6 @@ Deno.serve(async (req: Request) => {
         500
       );
     }
-
 
     const {
       error:
@@ -620,7 +577,6 @@ Deno.serve(async (req: Request) => {
           },
         });
 
-
     if (
       logError
     ) {
@@ -629,7 +585,6 @@ Deno.serve(async (req: Request) => {
         logError
       );
     }
-
 
     return response(
       {
@@ -664,7 +619,6 @@ Deno.serve(async (req: Request) => {
       },
       200
     );
-
   } catch (
     error
   ) {
@@ -672,7 +626,6 @@ Deno.serve(async (req: Request) => {
       "create-cms-user error:",
       error
     );
-
 
     return response(
       {
@@ -686,7 +639,6 @@ Deno.serve(async (req: Request) => {
     );
   }
 });
-
 
 function response(
   body: unknown,
