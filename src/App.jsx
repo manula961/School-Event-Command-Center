@@ -17,6 +17,7 @@ import EventDetails from "./pages/EventDetails";
 import Calendar from "./pages/Calendar";
 import Announcements from "./pages/Announcements";
 import Register from "./pages/Register";
+import DemoAccess from "./pages/DemoAccess";
 
 import StudentLogin from "./pages/StudentLogin";
 import StudentSignup from "./pages/StudentSignup";
@@ -99,6 +100,11 @@ function App() {
           <Route
             path="/register/:id"
             element={<Register />}
+          />
+
+          <Route
+            path="/demo"
+            element={<DemoAccess />}
           />
 
           <Route

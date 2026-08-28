@@ -992,6 +992,20 @@ function Home() {
       </section>
 
 
+      <Link
+        to="/demo"
+        className="demo-floating-bubble"
+        aria-label="Open project demo access"
+      >
+        <span className="demo-floating-dot" />
+        <span className="demo-floating-content">
+          <small>Project Demo</small>
+          <strong>Access CMS & Site Map</strong>
+        </span>
+        <span className="demo-floating-arrow">→</span>
+      </Link>
+
+
       <section className="home-final-section">
 
         <div className="container">
