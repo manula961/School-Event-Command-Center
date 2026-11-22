@@ -151,6 +151,18 @@ Some pages also contain role-specific business rules in addition to permission c
 
 ## Event Approval Workflow
 
+```mermaid
+flowchart TD
+  A["Submit event"] --> B["Review and approve"] --> C["Publish and register"] --> D["Issue tickets"] --> E["Check in"]
+  classDef primary fill:#6d28d9,stroke:#6d28d9,color:#fff
+  classDef accent fill:#be185d,stroke:#be185d,color:#fff
+  class A primary
+  class B accent
+  class C primary
+  class D accent
+  class E primary
+```
+
 EventHub separates an event's **operational status** from its **approval status**.
 
 ### Student Admin Path
@@ -298,6 +310,9 @@ Students can access their tickets through the protected ticket wallet and print 
 ---
 
 ## Event Check-In
+
+> [!TIP]
+> Use the QR scanner at the entrance. The CMS also supports manual ticket verification.
 
 EventHub supports both:
 
@@ -470,6 +485,14 @@ Dashboard indicators include event and attendance-oriented information such as:
 ---
 
 ## Public Routes
+
+**Choose a portal**
+
+| Area | Start here |
+| --- | --- |
+| Visitors | Events, calendar, and announcements |
+| Students | Registrations and digital tickets |
+| Event staff | Ticket verification and check-in |
 
 | Route | Purpose |
 |---|---|
