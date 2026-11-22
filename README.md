@@ -28,7 +28,7 @@ The React frontend needs a configured Supabase backend for registration, approva
 ## Project reference
 
 <details>
-<summary>Expand detailed documentation</summary>
+<summary><strong>🎟️ Features, users, and permissions</strong></summary>
 
 EventHub is a full-stack school event management platform built to keep students, teachers, parents, event staff, and school administrators informed and coordinated across the complete event lifecycle.
 
@@ -163,6 +163,11 @@ If an explicit override exists for a permission, that Boolean value replaces the
 Some pages also contain role-specific business rules in addition to permission checks. For example, society deletion is explicitly Principal-only.
 
 ---
+
+</details>
+
+<details>
+<summary><strong>📅 Approvals, registration, and check-in</strong></summary>
 
 ## Event Approval Workflow
 
@@ -499,6 +504,11 @@ Dashboard indicators include event and attendance-oriented information such as:
 
 ---
 
+</details>
+
+<details>
+<summary><strong>🧩 Routes, features, and backend integration</strong></summary>
+
 ## Public Routes
 
 **Choose a portal**
@@ -569,6 +579,11 @@ These functions perform sensitive Auth administration server-side rather than ex
 - **QR scanning** — `^2.3.8`
 
 ---
+
+</details>
+
+<details>
+<summary><strong>⚙️ Supabase, accounts, and operations</strong></summary>
 
 ## Supabase Setup Requirements
 
