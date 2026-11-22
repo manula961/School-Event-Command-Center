@@ -3,9 +3,7 @@
 <p align="center"><strong>From event approval to the last QR check-in.</strong></p>
 
 <p align="center">
-  <img alt="React" src="https://img.shields.io/static/v1?label=&amp;message=React&amp;color=7C3AED&amp;style=for-the-badge">
-  <img alt="Vite" src="https://img.shields.io/static/v1?label=&amp;message=Vite&amp;color=DB2777&amp;style=for-the-badge">
-  <img alt="QR check-in" src="https://img.shields.io/static/v1?label=&amp;message=QR%20check-in&amp;color=0369A1&amp;style=for-the-badge">
+  <img src="docs/readme-cover.svg" alt="EventHub project illustration" width="1120">
 </p>
 
 <p align="center">
