@@ -6,12 +6,29 @@
   <img src="docs/readme-cover.svg" alt="EventHub project illustration" width="1120">
 </p>
 
-<p align="center">
-  <a href="#project-summary">Project summary</a> · <a href="#event-approval-workflow">Event Approval Workflow</a> · <a href="#digital-tickets">Digital Tickets</a> · <a href="#supabase-setup-requirements">Supabase Setup Requirements</a>
-</p>
+<p align="center"><a href="#project-summary">Project summary</a> · <a href="#quick-start">Quick start</a> · <a href="#project-reference">Project reference</a></p>
 
----
+## Project summary
 
+Run a school event from approval through registration, ticketing, and QR check-in.
+
+| 📅 Discover | 🎟️ Attend | ✅ Run the event |
+| --- | --- | --- |
+| [Browse events](src/pages/Events.jsx) | [Open the ticket wallet](src/pages/StudentTickets.jsx) | [Review approvals](src/pages/ApprovalQueue.jsx) and [check in attendees](src/pages/AdminCheckIn.jsx) |
+
+## Quick start
+
+```sh
+npm install
+npm run dev
+```
+
+The React frontend needs a configured Supabase backend for registration, approvals, and check-in. Expand the project reference for backend requirements.
+
+## Project reference
+
+<details>
+<summary>Expand detailed documentation</summary>
 
 EventHub is a full-stack school event management platform built to keep students, teachers, parents, event staff, and school administrators informed and coordinated across the complete event lifecycle.
 
@@ -21,7 +38,7 @@ It combines a public event portal, student self-service area, and a role-based a
 
 ---
 
-## Project summary
+## Detailed overview
 
 EventHub gives a school one place to run events from initial approval through attendance reporting. The public portal handles discovery and registration, the student portal tracks registrations and tickets, and the CMS supports review, publishing, and event-day operations.
 
@@ -740,3 +757,5 @@ It addresses the challenge of managing many school activities across the year wh
 ## License
 
 No license was identified from the supplied project source for this README. Add an appropriate `LICENSE` file before distributing the project under a specific open-source license.
+
+</details>
