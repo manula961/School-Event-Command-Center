@@ -1,4 +1,19 @@
-# EventHub — School Event Command Center
+<h1 align="center">🎟️ EventHub — School Event Command Center</h1>
+
+<p align="center"><strong>From event approval to the last QR check-in.</strong></p>
+
+<p align="center">
+  <img alt="React" src="https://img.shields.io/static/v1?label=&amp;message=React&amp;color=7C3AED&amp;style=for-the-badge">
+  <img alt="Vite" src="https://img.shields.io/static/v1?label=&amp;message=Vite&amp;color=DB2777&amp;style=for-the-badge">
+  <img alt="QR check-in" src="https://img.shields.io/static/v1?label=&amp;message=QR%20check-in&amp;color=0369A1&amp;style=for-the-badge">
+</p>
+
+<p align="center">
+  <a href="#project-summary">Project summary</a> · <a href="#event-approval-workflow">Event Approval Workflow</a> · <a href="#digital-tickets">Digital Tickets</a> · <a href="#supabase-setup-requirements">Supabase Setup Requirements</a>
+</p>
+
+---
+
 
 EventHub is a full-stack school event management platform built to keep students, teachers, parents, event staff, and school administrators informed and coordinated across the complete event lifecycle.
 
