@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 320" role="img" aria-labelledby="title desc">
+<title id="title">EventHub</title><desc id="desc">School events from approval to check-in</desc>
+<defs><linearGradient id="base"><stop stop-color="#260c3c"/><stop offset="1" stop-color="#72114a"/></linearGradient><pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.4" fill="#fff" opacity=".13"/></pattern></defs>
+<rect width="1120" height="320" rx="28" fill="url(#base)"/><rect x="613" y="18" width="489" height="284" rx="22" fill="url(#grid)"/>
+<path d="M58 92h58" stroke="#ffd583" stroke-width="6" stroke-linecap="round"/>
+<text x="54" y="170" fill="#fff" font-family="system-ui, sans-serif" font-size="64" font-weight="750">EventHub</text>
+<text x="57" y="218" fill="#ffd583" font-family="system-ui, sans-serif" font-size="22" font-weight="500">School events from approval to check-in</text>
+<g transform="translate(673 44)"><g transform="rotate(-13 205 125)"><path d="M45 55h320v44a25 25 0 0 0 0 50v44H45v-44a25 25 0 0 0 0-50z" fill="#ffd583"/><path d="M259 62v125" stroke="#76365b" stroke-width="2" stroke-dasharray="6 6"/><path d="m85 134 42-47 34 35 25-17 39 40H85z" fill="#a73671"/><path d="M89 160h132" stroke="#76365b" stroke-width="4" stroke-linecap="round"/><path d="M281 90h21v21h-21zm41 0h21v21h-21zm-41 41h21v21h-21zm31-18h10v13h-10zm12 19h19v9h-19zm8 16h11v11h-11z" fill="#541638"/></g></g>
+</svg>
