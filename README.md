@@ -8,6 +8,19 @@ It combines a public event portal, student self-service area, and a role-based a
 
 ---
 
+## Project summary
+
+EventHub gives a school one place to run events from initial approval through attendance reporting. The public portal handles discovery and registration, the student portal tracks registrations and tickets, and the CMS supports review, publishing, and event-day operations.
+
+| Task | Where to start |
+| --- | --- |
+| Find and register for an event | [Event listings](src/pages/Events.jsx) and [registration](src/pages/Register.jsx) |
+| Review registration and ticket status | [Student registrations](src/pages/StudentRegistrations.jsx) and [ticket wallet](src/pages/StudentTickets.jsx) |
+| Approve an event and check in attendees | [Approval queue](src/pages/ApprovalQueue.jsx) and [check-in](src/pages/AdminCheckIn.jsx) |
+| Follow routes and access checks | [Route definitions](src/App.jsx) and [permission mapping](src/utils/permissions.js) |
+
+The frontend uses React, Vite, and React Router. Supabase supplies backend services. Use `npm run dev`, `npm run lint`, and `npm run build` from the repository root after installing dependencies. The Supabase setup section below describes the backend required for end-to-end workflows.
+
 ## Core Features
 
 ### Public Event Platform
@@ -583,22 +596,9 @@ Passwords do not match.
 | Event Staff | Principal | 8 characters | Principal can set a new password |
 | Student | Student during signup | 8 characters | Password confirmation required |
 
-### Demo / Test Credentials
+### Demo accounts
 
-The following accounts are the recommended demo set for development, presentation, and assessment. Create them in Supabase before attempting to sign in.
-
-| Role | Demo Email | Demo Password |
-|---|---|---|
-| Principal | `principal@eventhub.demo` | `EventHub@2026` |
-| Vice Principal | `vp@eventhub.demo` | `EventHub@2026` |
-| Teacher-in-Charge | `teacher@eventhub.demo` | `EventHub@2026` |
-| Student Admin | `studentadmin@eventhub.demo` | `EventHub@2026` |
-| Event Staff | `eventstaff@eventhub.demo` | `EventHub@2026` |
-| Student | `student@eventhub.demo` | `EventHub@2026` |
-
-> **Demo only:** These credentials are intentionally simple demonstration credentials. Do not use them for production accounts.
-
-The Teacher-in-Charge and Student Admin demo accounts should be assigned to the same demo society. The Event Staff account should be assigned to the event used for ticket verification and check-in testing.
+Use an isolated Supabase project for demo accounts and provide credentials through a restricted channel. Assign the Teacher-in-Charge and Student Admin to the same demo society. Assign Event Staff to the demo event for ticket verification and check-in testing.
 
 ### Demo Account Seeder
 
